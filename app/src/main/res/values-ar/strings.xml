@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SyDown</string>
+
+    <!-- General -->
+    <string name="sydown">SyDown</string>
+    <string name="home">الرئيسية</string>
+    <string name="downloads">التنزيلات</string>
+    <string name="settings">الإعدادات</string>
+    <string name="cancel">إلغاء</string>
+    <string name="delete">حذف</string>
+    <string name="share">مشاركة</string>
+    <string name="open">فتح</string>
+    <string name="select_all">تحديد الكل</string>
+    <string name="version">الإصدار</string>
+    <string name="done">تم</string>
+
+    <!-- Onboarding -->
+    <string name="welcome_to_sydown">مرحبًا بك في SyDown</string>
+    <string name="welcome_subtitle">نزّل وسائطك بسهولة، مباشرة على جهازك.</string>
+    <string name="choose_language">اختر اللغة</string>
+    <string name="arabic">العربية</string>
+    <string name="english">English</string>
+    <string name="continue_text">متابعة</string>
+    <string name="get_started">ابدأ</string>
+    <string name="local_download_title">التنزيل على جهازك</string>
+    <string name="local_download_description">تتم عمليات التحليل والتنزيل محليًا على جهازك دون خادم تنزيل خارجي.</string>
+    <string name="responsible_use_title">استخدم SyDown بمسؤولية</string>
+    <string name="responsible_use_description">استخدم التطبيق لتنزيل المحتوى الذي تملك حق تنزيله أو لديك إذن باستخدامه.</string>
+
+    <!-- Home -->
+    <string name="paste_media_link">الصق رابط الوسائط هنا</string>
+    <string name="paste">لصق</string>
+    <string name="analyze">تحليل الرابط</string>
+    <string name="analyzing">جارٍ التحليل…</string>
+    <string name="supported_platforms">المنصات المدعومة</string>
+    <string name="supported_platforms_note">تم اختبار SyDown مع هذه المنصات على روابط عامة.</string>
+    <string name="youtube">YouTube</string>
+    <string name="facebook">Facebook</string>
+    <string name="instagram">Instagram</string>
+    <string name="tiktok">TikTok</string>
+    <string name="telegram">Telegram</string>
+
+    <!-- Media -->
+    <string name="download">تنزيل</string>
+    <string name="video">فيديو</string>
+    <string name="audio">صوت</string>
+    <string name="duration">المدة</string>
+    <string name="uploader">الناشر</string>
+    <string name="unknown">غير معروف</string>
+    <string name="size_unknown">الحجم غير معروف</string>
+    <string name="original_quality">الجودة الأصلية</string>
+    <string name="choose_download_format">اختر صيغة التنزيل</string>
+    <string name="video_quality">جودة الفيديو</string>
+    <string name="audio_formats">صيغ الصوت</string>
+    <string name="no_video_formats">لا توجد خيارات فيديو متاحة</string>
+    <string name="no_audio_formats">لا توجد خيارات صوت متاحة</string>
+    <string name="starts_in_background">سيستمر التنزيل في الخلفية عند إغلاق SyDown أو قفل الشاشة.</string>
+
+    <!-- Download progress -->
+    <string name="preparing_download">جارٍ تجهيز التنزيل</string>
+    <string name="starting_download">جارٍ بدء التنزيل</string>
+    <string name="waiting_for_media">بانتظار تدفق الوسائط…</string>
+    <string name="downloading">جارٍ التنزيل</string>
+    <string name="merging">جارٍ دمج الفيديو والصوت</string>
+    <string name="saving">جارٍ الحفظ</string>
+    <string name="download_finished">اكتمل التنزيل</string>
+    <string name="download_cancelled">تم إلغاء التنزيل</string>
+    <string name="cancel_download">إلغاء التنزيل</string>
+    <string name="download_in_progress">تنزيل قيد التنفيذ</string>
+    <string name="speed">السرعة</string>
+    <string name="eta">الوقت المتبقي</string>
+
+    <!-- Download history -->
+    <string name="download_history">سجل التنزيلات</string>
+    <string name="no_downloads_yet">لا توجد تنزيلات حتى الآن</string>
+    <string name="delete_selected">حذف المحدد</string>
+    <string name="delete_options">خيارات الحذف</string>
+    <string name="delete_from_history">حذف من السجل فقط</string>
+    <string name="delete_from_device">حذف من الهاتف</string>
+    <string name="delete_from_history_and_device">حذف من السجل والهاتف</string>
+    <string name="selected_count">المحدد: %1$d</string>
+    <string name="quick_delete_title">حذف هذا التنزيل</string>
+    <string name="quick_delete_message">اختر ما إذا كنت تريد إزالة العنصر من السجل فقط أو حذف الملف من الهاتف أيضًا.</string>
+    <string name="delete_device_confirmation_single">سيتم حذف الملف من الهاتف وإزالته من سجل SyDown. لا يمكن التراجع عن هذه العملية.</string>
+    <string name="delete_device_confirmation_multiple">سيتم حذف %1$d ملفات من الهاتف وإزالتها من سجل SyDown. لا يمكن التراجع عن هذه العملية.</string>
+    <string name="deleted_from_history_single">تم الحذف من السجل، والملف ما زال على الهاتف.</string>
+    <string name="deleted_from_history_multiple">تم حذف %1$d عناصر من السجل، والملفات ما زالت على الهاتف.</string>
+    <string name="deleted_from_device_single">تم حذف الملف من الهاتف.</string>
+    <string name="deleted_from_device_multiple">تم حذف %1$d ملفات من الهاتف.</string>
+    <string name="delete_result_partial">تم حذف %1$d، وتعذر حذف %2$d.</string>
+    <string name="file_open_failed">تعذر فتح الملف. ربما تم حذفه من الجهاز.</string>
+    <string name="file_share_failed">تعذرت مشاركة الملف. ربما تم حذفه من الجهاز.</string>
+
+    <!-- Settings -->
+    <string name="appearance">المظهر</string>
+    <string name="language">اللغة</string>
+    <string name="choose_app_language">اختر لغة التطبيق</string>
+    <string name="language_system">لغة الجهاز (تلقائي)</string>
+    <string name="theme">الوضع</string>
+    <string name="choose_theme">اختر مظهر التطبيق</string>
+    <string name="theme_dark">داكن</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_system">حسب النظام</string>
+    <string name="download_folder">مجلد التنزيل</string>
+    <string name="download_folder_value">Downloads/SyDown</string>
+    <string name="notifications">الإشعارات</string>
+    <string name="notifications_description">إدارة إشعارات التنزيل</string>
+    <string name="about">حول التطبيق</string>
+    <string name="app_information">معلومات التطبيق</string>
+    <string name="share_app">مشاركة التطبيق</string>
+    <string name="share_app_description">شارك SyDown مع أصدقائك</string>
+    <string name="rate_app">تقييم التطبيق</string>
+    <string name="rate_app_description">أخبرنا برأيك في SyDown</string>
+    <string name="contact_us">تواصل معنا</string>
+    <string name="contact_us_description">الدعم والمساعدة</string>
+    <string name="contact_us_title">تواصل معنا</string>
+    <string name="contact_us_message">يمكنك التواصل معنا عبر حساباتنا التالية.</string>
+    <string name="open_facebook">Facebook</string>
+    <string name="open_instagram">Instagram</string>
+
+    <!-- Owner -->
+    <string name="owner_tools">أدوات المالك</string>
+    <string name="check_ytdlp_version">فحص إصدار yt-dlp</string>
+    <string name="update_ytdlp">تحديث yt-dlp</string>
+    <string name="technical_diagnostics">التشخيصات التقنية</string>
+
+    <!-- Identity -->
+    <string name="made_for_syria">صٍنْعُ بّـَ♥ لٍسْوُرٌيّاَ</string>
+
+</resources>

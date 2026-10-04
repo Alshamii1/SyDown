@@ -1,0 +1,31 @@
+# Gradle
+.gradle/
+**/build/
+
+# Local Android SDK configuration
+local.properties
+
+# Android Studio / IntelliJ
+*.iml
+.idea/
+.kotlin/
+
+# Native build files
+.externalNativeBuild/
+.cxx/
+
+# Android build/output files
+captures/
+*.apk
+*.aab
+*.apks
+
+# Signing keys - NEVER upload
+*.jks
+*.keystore
+keystore.properties
+key.properties
+
+# Operating system files
+.DS_Store
+Thumbs.db

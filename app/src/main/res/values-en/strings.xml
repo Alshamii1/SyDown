@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">SyDown</string>
+
+    <!-- General -->
+    <string name="sydown">SyDown</string>
+    <string name="home">Home</string>
+    <string name="downloads">Downloads</string>
+    <string name="settings">Settings</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+    <string name="open">Open</string>
+    <string name="select_all">Select all</string>
+    <string name="version">Version</string>
+    <string name="done">Done</string>
+
+    <!-- Onboarding -->
+    <string name="welcome_to_sydown">Welcome to SyDown</string>
+    <string name="welcome_subtitle">Download your media easily, directly on your device.</string>
+    <string name="choose_language">Choose your language</string>
+    <string name="arabic">العربية</string>
+    <string name="english">English</string>
+    <string name="continue_text">Continue</string>
+    <string name="get_started">Get Started</string>
+    <string name="local_download_title">Downloads on your device</string>
+    <string name="local_download_description">Analysis and downloads run locally on your device without an external download server.</string>
+    <string name="responsible_use_title">Use SyDown responsibly</string>
+    <string name="responsible_use_description">Use the app to download content that you have the right or permission to download.</string>
+
+    <!-- Home -->
+    <string name="paste_media_link">Paste a media link here</string>
+    <string name="paste">Paste</string>
+    <string name="analyze">Analyze link</string>
+    <string name="analyzing">Analyzing…</string>
+    <string name="supported_platforms">Supported platforms</string>
+    <string name="supported_platforms_note">SyDown has been tested with public links from these platforms.</string>
+    <string name="youtube">YouTube</string>
+    <string name="facebook">Facebook</string>
+    <string name="instagram">Instagram</string>
+    <string name="tiktok">TikTok</string>
+    <string name="telegram">Telegram</string>
+
+    <!-- Friendly errors -->
+    <string name="error_rate_limited">Requests from the current network are temporarily limited. Wait a while before trying again and avoid repeated rapid retries.</string>
+    <string name="error_access_forbidden">The media cannot be accessed right now. Analyze the link again later and try once more.</string>
+    <string name="error_network">Could not reach the server. Check your internet connection and try again.</string>
+    <string name="error_timeout">The connection took longer than expected. Check your network and try again.</string>
+    <string name="error_unsupported_url">This link is invalid or is not currently supported.</string>
+    <string name="error_login_required">This content requires sign-in or access permission, so it cannot be accessed this way.</string>
+    <string name="error_media_unavailable">This content is currently unavailable. It may have been removed or access may be restricted.</string>
+    <string name="error_generic">Could not analyze the link or access the media. Check the link and your connection, then try again.</string>
+
+    <!-- Media -->
+    <string name="download">Download</string>
+    <string name="video">Video</string>
+    <string name="audio">Audio</string>
+    <string name="duration">Duration</string>
+    <string name="uploader">Uploader</string>
+    <string name="unknown">Unknown</string>
+    <string name="size_unknown">Size unknown</string>
+    <string name="original_quality">Original Quality</string>
+    <string name="choose_download_format">Choose download format</string>
+    <string name="video_quality">Video quality</string>
+    <string name="audio_formats">Audio formats</string>
+    <string name="no_video_formats">No video options available</string>
+    <string name="no_audio_formats">No audio options available</string>
+    <string name="starts_in_background">The download will continue in the background if SyDown is closed or the screen is locked.</string>
+
+    <!-- Download progress -->
+    <string name="preparing_download">Preparing download</string>
+    <string name="starting_download">Starting download</string>
+    <string name="waiting_for_media">Waiting for media stream…</string>
+    <string name="downloading">Downloading</string>
+    <string name="downloading_percent">Downloading %1$d%%</string>
+    <string name="merging">Merging video and audio</string>
+    <string name="merging_ffmpeg">Merging video and audio</string>
+    <string name="saving">Saving</string>
+    <string name="saving_to_downloads">Saving to Downloads</string>
+    <string name="download_finished">Download finished</string>
+    <string name="download_cancelled">Download cancelled</string>
+    <string name="download_failed">Download failed</string>
+    <string name="cancelling_download">Cancelling download</string>
+    <string name="cancel_download">Cancel download</string>
+    <string name="download_in_progress">Download in progress</string>
+    <string name="speed">Speed</string>
+    <string name="eta">ETA</string>
+    <string name="eta_value">ETA %1$s</string>
+    <string name="saved_to_downloads_ytdlp">Saved to Downloads/SyDown</string>
+
+    <!-- Download history -->
+    <string name="download_history">Download history</string>
+    <string name="no_downloads_yet">No downloads yet</string>
+    <string name="delete_selected">Delete selected</string>
+    <string name="delete_options">Delete options</string>
+    <string name="delete_from_history">Remove from history only</string>
+    <string name="delete_from_device">Delete from device</string>
+    <string name="delete_from_history_and_device">Delete from history and device</string>
+    <string name="selected_count">Selected: %1$d</string>
+    <string name="quick_delete_title">Delete this download</string>
+    <string name="quick_delete_message">Choose whether to remove this item from history only or also delete the file from your device.</string>
+    <string name="delete_device_confirmation_single">This file will be deleted from your device and removed from SyDown history. This action cannot be undone.</string>
+    <string name="delete_device_confirmation_multiple">%1$d files will be deleted from your device and removed from SyDown history. This action cannot be undone.</string>
+    <string name="deleted_from_history_single">Removed from history. The file is still on your device.</string>
+    <string name="deleted_from_history_multiple">%1$d items were removed from history. The files are still on your device.</string>
+    <string name="deleted_from_device_single">The file was deleted from your device.</string>
+    <string name="deleted_from_device_multiple">%1$d files were deleted from your device.</string>
+    <string name="delete_result_partial">Deleted %1$d; failed to delete %2$d.</string>
+    <string name="file_open_failed">Unable to open the file. It may have been deleted from the device.</string>
+    <string name="file_share_failed">Unable to share the file. It may have been deleted from the device.</string>
+
+    <!-- Settings -->
+    <string name="appearance">Appearance</string>
+    <string name="language">Language</string>
+    <string name="choose_app_language">Choose app language</string>
+    <string name="language_system">Device language (automatic)</string>
+    <string name="theme">Theme</string>
+    <string name="choose_theme">Choose app appearance</string>
+    <string name="theme_dark">Dark</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_system">System default</string>
+    <string name="download_folder">Download folder</string>
+    <string name="download_folder_value">Downloads/SyDown</string>
+    <string name="notifications">Notifications</string>
+    <string name="notifications_description">Manage download notifications</string>
+    <string name="about">About</string>
+    <string name="app_information">App information</string>
+    <string name="share_app">Share app</string>
+    <string name="share_app_description">Share SyDown with your friends</string>
+    <string name="rate_app">Rate the app</string>
+    <string name="rate_app_description">Tell us what you think about SyDown</string>
+    <string name="contact_us">Contact us</string>
+    <string name="contact_us_description">Support and help</string>
+    <string name="contact_us_title">Contact us</string>
+    <string name="contact_us_message">You can contact us through our social accounts.</string>
+    <string name="open_facebook">Facebook</string>
+    <string name="open_instagram">Instagram</string>
+
+    <!-- Owner -->
+    <string name="owner_tools">Owner Tools</string>
+    <string name="check_ytdlp_version">Check yt-dlp version</string>
+    <string name="update_ytdlp">Update yt-dlp</string>
+    <string name="technical_diagnostics">Technical diagnostics</string>
+
+    <!-- Identity -->
+    <string name="made_for_syria">صٍنْعُ بّـَ♥ لٍسْوُرٌيّاَ</string>
+
+</resources>

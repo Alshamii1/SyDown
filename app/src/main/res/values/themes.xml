@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style
+        name="Theme.YTDLP"
+        parent="android:Theme.Material.NoActionBar">
+
+        <item name="android:windowBackground">
+            @drawable/sydown_launch_background
+        </item>
+
+        <item name="android:colorAccent">
+            #00C866
+        </item>
+
+        <item name="android:navigationBarColor">
+            #030605
+        </item>
+
+        <item name="android:statusBarColor">
+            #030605
+        </item>
+
+        <item name="android:windowLightStatusBar">
+            false
+        </item>
+
+        <item name="android:windowLightNavigationBar">
+            false
+        </item>
+
+        <item name="android:windowActionModeOverlay">
+            true
+        </item>
+
+    </style>
+
+</resources>
