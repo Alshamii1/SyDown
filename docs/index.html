@@ -1,0 +1,2433 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+            name="theme-color"
+            content="#030605"
+    >
+
+    <meta
+            name="description"
+            content="SyDown تطبيق Android حديث لتنزيل الفيديو والصوت محليًا على جهازك."
+    >
+
+    <title>SyDown - تنزيل الوسائط على Android</title>
+
+    <style>
+        :root {
+            --black: #030605;
+            --black-soft: #07100B;
+
+            --green: #00C866;
+            --green-light: #35F4C2;
+            --green-mid: #00E58A;
+            --green-dark: #00A95A;
+
+            --red: #CE1126;
+
+            --white: #F4FFF9;
+            --text: #D7E7DF;
+            --muted: #8DA299;
+
+            --glass: rgba(9, 17, 13, 0.67);
+            --glass-strong: rgba(10, 18, 14, 0.86);
+
+            --border: rgba(53, 244, 194, 0.17);
+            --border-soft: rgba(255, 255, 255, 0.08);
+
+            --shadow:
+                0 30px 90px rgba(0, 0, 0, 0.34);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 100px;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+
+            color: var(--white);
+
+            font-family:
+                "Segoe UI",
+                Tahoma,
+                Arial,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #002516 0%,
+                    #03130B 22%,
+                    #030605 52%,
+                    #080605 78%,
+                    #160506 100%
+                );
+        }
+
+        body::before {
+            content: "";
+
+            position: fixed;
+            inset: 0;
+
+            z-index: -10;
+
+            pointer-events: none;
+
+            background-image:
+                linear-gradient(
+                    rgba(255, 255, 255, 0.018) 1px,
+                    transparent 1px
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255, 255, 255, 0.018) 1px,
+                    transparent 1px
+                );
+
+            background-size: 56px 56px;
+
+            mask-image:
+                linear-gradient(
+                    to bottom,
+                    rgba(0, 0, 0, 0.68),
+                    transparent 80%
+                );
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+        }
+
+        img {
+            display: block;
+        }
+
+        .ambient {
+            position: fixed;
+
+            z-index: -8;
+
+            border-radius: 50%;
+
+            filter: blur(110px);
+
+            pointer-events: none;
+
+            opacity: 0.6;
+        }
+
+        .ambient-green {
+            width: 520px;
+            height: 520px;
+
+            top: -180px;
+            left: -160px;
+
+            background: rgba(0, 200, 102, 0.25);
+
+            animation:
+                ambientGreen 16s ease-in-out infinite alternate;
+        }
+
+        .ambient-green-two {
+            width: 420px;
+            height: 420px;
+
+            top: 55%;
+            left: 18%;
+
+            background: rgba(0, 169, 90, 0.11);
+
+            animation:
+                ambientGreenTwo 20s ease-in-out infinite alternate;
+        }
+
+        .ambient-red {
+            width: 440px;
+            height: 440px;
+
+            right: -150px;
+            bottom: -120px;
+
+            background: rgba(206, 17, 38, 0.13);
+
+            animation:
+                ambientRed 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes ambientGreen {
+            from {
+                transform:
+                    translate3d(-20px, -20px, 0)
+                    scale(0.95);
+            }
+
+            to {
+                transform:
+                    translate3d(90px, 75px, 0)
+                    scale(1.12);
+            }
+        }
+
+        @keyframes ambientGreenTwo {
+            from {
+                transform:
+                    translate3d(-80px, 20px, 0)
+                    scale(0.92);
+            }
+
+            to {
+                transform:
+                    translate3d(120px, -70px, 0)
+                    scale(1.1);
+            }
+        }
+
+        @keyframes ambientRed {
+            from {
+                transform:
+                    translate3d(0, 0, 0)
+                    scale(0.95);
+            }
+
+            to {
+                transform:
+                    translate3d(-90px, -70px, 0)
+                    scale(1.08);
+            }
+        }
+
+        .page {
+            width: min(
+                1160px,
+                calc(100% - 40px)
+            );
+
+            margin-inline: auto;
+        }
+
+        .top-shell {
+            position: fixed;
+
+            top: 16px;
+            left: 0;
+            right: 0;
+
+            z-index: 100;
+        }
+
+        .navbar {
+            min-height: 66px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 18px;
+
+            padding: 9px 12px 9px 15px;
+
+            border:
+                1px solid rgba(255, 255, 255, 0.075);
+
+            border-radius: 22px;
+
+            background:
+                rgba(5, 11, 8, 0.68);
+
+            box-shadow:
+                0 20px 55px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+            backdrop-filter:
+                blur(22px)
+                saturate(135%);
+
+            -webkit-backdrop-filter:
+                blur(22px)
+                saturate(135%);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+
+            direction: ltr;
+        }
+
+        .brand-logo {
+            width: 46px;
+            height: 46px;
+
+            object-fit: contain;
+
+            filter:
+                drop-shadow(
+                    0 0 12px rgba(0, 200, 102, 0.18)
+                );
+        }
+
+        .brand-name {
+            font-size: 23px;
+            font-weight: 900;
+
+            letter-spacing: -0.8px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    #35F4C2,
+                    #00E58A,
+                    #00C866,
+                    #00A95A
+                );
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 5px;
+        }
+
+        .nav-link {
+            padding: 9px 12px;
+
+            border-radius: 12px;
+
+            color: #AABDB3;
+
+            font-size: 13px;
+            font-weight: 650;
+
+            transition:
+                color 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--white);
+
+            background:
+                rgba(255, 255, 255, 0.055);
+        }
+
+        .language-button {
+            min-width: 86px;
+
+            padding: 10px 14px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 14px;
+
+            color: var(--white);
+
+            background:
+                rgba(0, 200, 102, 0.07);
+
+            cursor: pointer;
+
+            font-size: 13px;
+            font-weight: 800;
+
+            transition:
+                transform 0.2s ease,
+                border-color 0.2s ease,
+                background 0.2s ease;
+        }
+
+        .language-button:hover {
+            transform: translateY(-1px);
+
+            border-color:
+                rgba(53, 244, 194, 0.42);
+
+            background:
+                rgba(0, 200, 102, 0.12);
+        }
+
+        .hero {
+            min-height: 100vh;
+
+            display: grid;
+
+            grid-template-columns:
+                minmax(0, 1.05fr)
+                minmax(330px, 0.95fr);
+
+            align-items: center;
+
+            gap: 72px;
+
+            padding:
+                145px
+                0
+                90px;
+        }
+
+        .hero-copy {
+            position: relative;
+
+            z-index: 2;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 9px;
+
+            margin-bottom: 24px;
+
+            padding: 8px 13px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 999px;
+
+            color: #B0F6D4;
+
+            background:
+                rgba(0, 200, 102, 0.075);
+
+            font-size: 13px;
+            font-weight: 750;
+
+            box-shadow:
+                inset 0 1px 0
+                rgba(255, 255, 255, 0.03);
+        }
+
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+
+            border-radius: 50%;
+
+            background: var(--green-light);
+
+            box-shadow:
+                0 0 15px
+                rgba(0, 229, 138, 0.9);
+
+            animation:
+                statusPulse 2.2s
+                ease-in-out
+                infinite;
+        }
+
+        @keyframes statusPulse {
+            50% {
+                opacity: 0.5;
+
+                box-shadow:
+                    0 0 4px
+                    rgba(0, 229, 138, 0.4);
+            }
+        }
+
+        h1 {
+            max-width: 760px;
+
+            margin-bottom: 25px;
+
+            font-size:
+                clamp(47px, 5.9vw, 79px);
+
+            line-height: 1.03;
+
+            letter-spacing: -3.4px;
+
+            text-wrap: balance;
+        }
+
+        html[dir="rtl"] h1 {
+            letter-spacing: -1.2px;
+        }
+
+        .gradient-text {
+            display: inline-block;
+
+            direction: ltr;
+            unicode-bidi: isolate;
+
+            background:
+                linear-gradient(
+                    100deg,
+                    #52F8CE 0%,
+                    #00E58A 38%,
+                    #00C866 67%,
+                    #00A95A 100%
+                );
+
+            background-size: 180% 100%;
+
+            -webkit-background-clip: text;
+            background-clip: text;
+
+            color: transparent;
+
+            animation:
+                wordGradient 6s
+                ease-in-out
+                infinite alternate;
+        }
+
+        @keyframes wordGradient {
+            from {
+                background-position: 0% 50%;
+            }
+
+            to {
+                background-position: 100% 50%;
+            }
+        }
+
+        .hero-description {
+            max-width: 660px;
+
+            margin-bottom: 34px;
+
+            color: #B7C8BF;
+
+            font-size: 17px;
+            line-height: 1.95;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+
+            gap: 12px;
+        }
+
+        .button {
+            position: relative;
+
+            min-height: 52px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            overflow: hidden;
+
+            padding-inline: 23px;
+
+            border-radius: 16px;
+
+            font-size: 14px;
+            font-weight: 850;
+
+            transition:
+                transform 0.22s ease,
+                box-shadow 0.22s ease,
+                border-color 0.22s ease;
+        }
+
+        .button:hover {
+            transform:
+                translateY(-2px)
+                scale(1.01);
+        }
+
+        .button-primary {
+            color: #00170C;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #42F5C6,
+                    #00E58A 45%,
+                    #00C866
+                );
+
+            box-shadow:
+                0 14px 38px
+                rgba(0, 200, 102, 0.19);
+        }
+
+        .button-primary::after {
+            content: "";
+
+            position: absolute;
+
+            top: -60%;
+            bottom: -60%;
+
+            width: 42px;
+
+            left: -80px;
+
+            transform:
+                rotate(22deg);
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.42),
+                    transparent
+                );
+
+            animation:
+                buttonShine 5.5s
+                ease-in-out
+                infinite;
+        }
+
+        @keyframes buttonShine {
+            0%,
+            67% {
+                left: -90px;
+            }
+
+            82%,
+            100% {
+                left: calc(100% + 90px);
+            }
+        }
+
+        .button-primary:hover {
+            box-shadow:
+                0 18px 46px
+                rgba(0, 200, 102, 0.30);
+        }
+
+        .button-secondary {
+            color: var(--white);
+
+            border:
+                1px solid var(--border-soft);
+
+            background:
+                rgba(13, 20, 16, 0.69);
+
+            backdrop-filter: blur(12px);
+        }
+
+        .button-secondary:hover {
+            border-color:
+                rgba(53, 244, 194, 0.24);
+        }
+
+        .hero-visual {
+            position: relative;
+
+            min-height: 520px;
+
+            display: grid;
+            place-items: center;
+
+            perspective: 1100px;
+        }
+
+        .orbit {
+            position: absolute;
+
+            width: min(450px, 92%);
+            aspect-ratio: 1;
+
+            border:
+                1px solid
+                rgba(53, 244, 194, 0.085);
+
+            border-radius: 50%;
+
+            animation:
+                orbitRotate 28s
+                linear
+                infinite;
+        }
+
+        .orbit::before {
+            content: "";
+
+            position: absolute;
+
+            width: 8px;
+            height: 8px;
+
+            top: 13%;
+            left: 16%;
+
+            border-radius: 50%;
+
+            background:
+                var(--green-light);
+
+            box-shadow:
+                0 0 18px
+                rgba(53, 244, 194, 0.7);
+        }
+
+        .orbit-second {
+            width: min(365px, 75%);
+
+            opacity: 0.75;
+
+            animation:
+                orbitRotateReverse 21s
+                linear
+                infinite;
+        }
+
+        @keyframes orbitRotate {
+            to {
+                transform:
+                    rotate(360deg);
+            }
+        }
+
+        @keyframes orbitRotateReverse {
+            to {
+                transform:
+                    rotate(-360deg);
+            }
+        }
+
+        .hero-glow {
+            position: absolute;
+
+            width: 330px;
+            height: 330px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(0, 200, 102, 0.17);
+
+            filter: blur(75px);
+
+            animation:
+                logoGlow 4s
+                ease-in-out
+                infinite alternate;
+        }
+
+        @keyframes logoGlow {
+            from {
+                transform: scale(0.84);
+                opacity: 0.42;
+            }
+
+            to {
+                transform: scale(1.15);
+                opacity: 0.8;
+            }
+        }
+
+        .logo-card {
+            position: relative;
+
+            width: min(355px, 82%);
+            aspect-ratio: 1;
+
+            display: grid;
+            place-items: center;
+
+            overflow: hidden;
+
+            border:
+                1px solid
+                rgba(53, 244, 194, 0.19);
+
+            border-radius: 46px;
+
+            background:
+                radial-gradient(
+                    circle at 50% 38%,
+                    rgba(0, 229, 138, 0.12),
+                    transparent 42%
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(16, 28, 22, 0.84),
+                    rgba(3, 6, 5, 0.72)
+                );
+
+            box-shadow:
+                0 38px 100px
+                rgba(0, 0, 0, 0.43),
+                inset 0 1px 0
+                rgba(255, 255, 255, 0.055);
+
+            backdrop-filter: blur(22px);
+
+            animation:
+                logoFloat 5.8s
+                ease-in-out
+                infinite;
+        }
+
+        .logo-card::before {
+            content: "";
+
+            position: absolute;
+
+            width: 75%;
+            height: 40%;
+
+            top: -28%;
+            left: 12%;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255, 255, 255, 0.05);
+
+            filter: blur(20px);
+        }
+
+        @keyframes logoFloat {
+            0%,
+            100% {
+                transform:
+                    translateY(0)
+                    rotateX(0deg)
+                    rotateY(0deg);
+            }
+
+            50% {
+                transform:
+                    translateY(-14px)
+                    rotateX(1.5deg)
+                    rotateY(-1.5deg);
+            }
+        }
+
+        .hero-logo {
+            width: 67%;
+            height: 67%;
+
+            object-fit: contain;
+
+            filter:
+                drop-shadow(
+                    0 0 24px
+                    rgba(0, 200, 102, 0.18)
+                );
+        }
+
+        .floating-chip {
+            position: absolute;
+
+            display: flex;
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 9px 12px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.08);
+
+            border-radius: 14px;
+
+            color: #C4D6CD;
+
+            background:
+                rgba(7, 14, 10, 0.72);
+
+            box-shadow:
+                0 18px 40px
+                rgba(0, 0, 0, 0.25);
+
+            backdrop-filter: blur(16px);
+
+            font-size: 12px;
+            font-weight: 750;
+        }
+
+        .floating-chip span:first-child {
+            color: var(--green-light);
+        }
+
+        .chip-one {
+            top: 21%;
+            right: -1%;
+
+            animation:
+                chipFloat 4.4s
+                ease-in-out
+                infinite;
+        }
+
+        .chip-two {
+            left: 1%;
+            bottom: 21%;
+
+            animation:
+                chipFloat 5.2s
+                ease-in-out
+                infinite reverse;
+        }
+
+        @keyframes chipFloat {
+            50% {
+                transform:
+                    translateY(-9px);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+
+            bottom: 26px;
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            gap: 8px;
+
+            color: #6D8277;
+
+            font-size: 10px;
+
+            direction: ltr;
+        }
+
+        .scroll-mouse {
+            width: 22px;
+            height: 34px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.18);
+
+            border-radius: 999px;
+
+            position: relative;
+        }
+
+        .scroll-mouse::before {
+            content: "";
+
+            position: absolute;
+
+            width: 3px;
+            height: 6px;
+
+            top: 7px;
+            left: 50%;
+
+            border-radius: 999px;
+
+            background: var(--green);
+
+            transform:
+                translateX(-50%);
+
+            animation:
+                scrollDot 1.8s
+                ease-in-out
+                infinite;
+        }
+
+        @keyframes scrollDot {
+            0% {
+                opacity: 0;
+                transform:
+                    translate(-50%, 0);
+            }
+
+            35% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform:
+                    translate(-50%, 11px);
+            }
+        }
+
+        .section {
+            padding: 105px 0;
+        }
+
+        .section-heading {
+            max-width: 700px;
+
+            margin:
+                0 auto 48px;
+
+            text-align: center;
+        }
+
+        .section-kicker {
+            display: inline-block;
+
+            margin-bottom: 10px;
+
+            color: var(--green-light);
+
+            font-size: 12px;
+            font-weight: 850;
+
+            letter-spacing: 1.4px;
+
+            text-transform: uppercase;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 13px;
+
+            font-size:
+                clamp(30px, 4vw, 43px);
+
+            line-height: 1.18;
+
+            letter-spacing: -1.2px;
+        }
+
+        .section-heading p {
+            color: var(--muted);
+
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .features {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, minmax(0, 1fr));
+
+            gap: 17px;
+        }
+
+        .feature-card {
+            --mouse-x: 50%;
+            --mouse-y: 50%;
+
+            position: relative;
+
+            min-height: 250px;
+
+            overflow: hidden;
+
+            padding: 27px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.08);
+
+            border-radius: 26px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 25, 20, 0.76),
+                    rgba(4, 8, 6, 0.67)
+                );
+
+            box-shadow:
+                inset 0 1px 0
+                rgba(255, 255, 255, 0.025);
+
+            transition:
+                transform 0.28s ease,
+                border-color 0.28s ease,
+                box-shadow 0.28s ease;
+        }
+
+        .feature-card::before {
+            content: "";
+
+            position: absolute;
+            inset: 0;
+
+            pointer-events: none;
+
+            opacity: 0;
+
+            background:
+                radial-gradient(
+                    280px circle
+                    at var(--mouse-x)
+                    var(--mouse-y),
+                    rgba(0, 229, 138, 0.12),
+                    transparent 45%
+                );
+
+            transition:
+                opacity 0.25s ease;
+        }
+
+        .feature-card:hover {
+            transform:
+                translateY(-6px);
+
+            border-color:
+                rgba(53, 244, 194, 0.19);
+
+            box-shadow:
+                0 22px 60px
+                rgba(0, 0, 0, 0.24);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            position: relative;
+
+            width: 48px;
+            height: 48px;
+
+            display: grid;
+            place-items: center;
+
+            margin-bottom: 25px;
+
+            border:
+                1px solid
+                rgba(53, 244, 194, 0.18);
+
+            border-radius: 15px;
+
+            color: var(--green-light);
+
+            background:
+                rgba(0, 200, 102, 0.08);
+
+            box-shadow:
+                inset 0 1px 0
+                rgba(255, 255, 255, 0.04);
+
+            font-size: 21px;
+            font-weight: 900;
+        }
+
+        .feature-card h3 {
+            position: relative;
+
+            margin-bottom: 10px;
+
+            font-size: 18px;
+        }
+
+        .feature-card p {
+            position: relative;
+
+            color: #91A69B;
+
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .platform-panel {
+            position: relative;
+
+            overflow: hidden;
+
+            padding: 48px 28px;
+
+            border:
+                1px solid var(--border-soft);
+
+            border-radius: 32px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(15, 25, 20, 0.66),
+                    rgba(4, 8, 6, 0.58)
+                );
+        }
+
+        .platform-panel::before {
+            content: "";
+
+            position: absolute;
+
+            width: 430px;
+            height: 220px;
+
+            top: -140px;
+            left: 50%;
+
+            transform:
+                translateX(-50%);
+
+            border-radius: 50%;
+
+            background:
+                rgba(0, 200, 102, 0.14);
+
+            filter: blur(60px);
+        }
+
+        .platforms {
+            position: relative;
+
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+
+            gap: 11px;
+        }
+
+        .platform {
+            display: inline-flex;
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 11px 16px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.09);
+
+            border-radius: 999px;
+
+            color: #D1E0D8;
+
+            background:
+                rgba(6, 12, 9, 0.66);
+
+            font-size: 13px;
+            font-weight: 750;
+
+            transition:
+                transform 0.22s ease,
+                border-color 0.22s ease,
+                background 0.22s ease,
+                color 0.22s ease;
+        }
+
+        .platform-dot {
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: var(--green);
+
+            box-shadow:
+                0 0 9px
+                rgba(0, 200, 102, 0.45);
+        }
+
+        .platform:hover {
+            transform:
+                translateY(-3px);
+
+            color: var(--white);
+
+            border-color:
+                rgba(53, 244, 194, 0.25);
+
+            background:
+                rgba(0, 200, 102, 0.08);
+        }
+
+        .download-section {
+            padding:
+                80px
+                0
+                115px;
+        }
+
+        .download-box {
+            position: relative;
+
+            overflow: hidden;
+
+            padding:
+                62px
+                35px;
+
+            border:
+                1px solid
+                rgba(53, 244, 194, 0.18);
+
+            border-radius: 34px;
+
+            text-align: center;
+
+            background:
+                radial-gradient(
+                    circle at 50% 0%,
+                    rgba(0, 200, 102, 0.17),
+                    transparent 47%
+                ),
+                linear-gradient(
+                    145deg,
+                    rgba(15, 25, 20, 0.82),
+                    rgba(5, 9, 7, 0.75)
+                );
+
+            box-shadow:
+                var(--shadow);
+        }
+
+        .download-box::before {
+            content: "";
+
+            position: absolute;
+
+            width: 180px;
+            height: 180px;
+
+            top: -120px;
+            right: -70px;
+
+            border-radius: 50%;
+
+            background:
+                rgba(206, 17, 38, 0.10);
+
+            filter: blur(35px);
+        }
+
+        .download-logo {
+            width: 72px;
+            height: 72px;
+
+            object-fit: contain;
+
+            margin:
+                0 auto
+                17px;
+
+            filter:
+                drop-shadow(
+                    0 0 20px
+                    rgba(0, 200, 102, 0.16)
+                );
+        }
+
+        .download-box h2 {
+            position: relative;
+
+            margin-bottom: 13px;
+
+            font-size:
+                clamp(29px, 4vw, 41px);
+        }
+
+        .download-box p {
+            position: relative;
+
+            max-width: 710px;
+
+            margin:
+                0 auto
+                26px;
+
+            color: #95A99F;
+
+            font-size: 15px;
+            line-height: 1.85;
+        }
+
+        .release-note {
+            position: relative;
+
+            display: inline-flex;
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 20px;
+
+            padding: 7px 11px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.07);
+
+            border-radius: 999px;
+
+            color: #8DA299;
+
+            background:
+                rgba(0, 0, 0, 0.16);
+
+            direction: ltr;
+
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .release-note span {
+            color: var(--green-light);
+        }
+
+        footer {
+            padding:
+                0
+                0
+                38px;
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding-top: 24px;
+
+            border-top:
+                1px solid
+                rgba(255, 255, 255, 0.06);
+
+            color: #667A70;
+
+            font-size: 12px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+
+            gap: 7px;
+
+            direction: ltr;
+
+            color: #80948A;
+
+            font-weight: 800;
+        }
+
+        .footer-logo {
+            width: 25px;
+            height: 25px;
+
+            object-fit: contain;
+        }
+
+        .reveal {
+            opacity: 0;
+
+            transform:
+                translateY(28px);
+
+            transition:
+                opacity 0.75s ease,
+                transform 0.75s
+                cubic-bezier(
+                    0.2,
+                    0.7,
+                    0.2,
+                    1
+                );
+        }
+
+        .reveal.visible {
+            opacity: 1;
+
+            transform:
+                translateY(0);
+        }
+
+        .reveal-delay-1 {
+            transition-delay: 0.08s;
+        }
+
+        .reveal-delay-2 {
+            transition-delay: 0.16s;
+        }
+
+        .reveal-delay-3 {
+            transition-delay: 0.24s;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 920px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                min-height: auto;
+
+                grid-template-columns: 1fr;
+
+                gap: 44px;
+
+                padding:
+                    145px
+                    0
+                    95px;
+
+                text-align: center;
+            }
+
+            .hero-copy {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .hero-description {
+                margin-inline: auto;
+            }
+
+            .actions {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                min-height: 430px;
+
+                order: -1;
+            }
+
+            .logo-card {
+                width: min(315px, 75vw);
+            }
+
+            .orbit {
+                width: min(400px, 88vw);
+            }
+
+            .orbit-second {
+                width: min(325px, 72vw);
+            }
+
+            .chip-one {
+                right: 5%;
+            }
+
+            .chip-two {
+                left: 5%;
+            }
+
+            .scroll-indicator {
+                display: none;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 560px) {
+            .page {
+                width:
+                    min(
+                        calc(100% - 24px),
+                        1160px
+                    );
+            }
+
+            .top-shell {
+                top: 9px;
+            }
+
+            .navbar {
+                min-height: 59px;
+
+                padding:
+                    7px
+                    8px
+                    7px
+                    10px;
+
+                border-radius: 18px;
+            }
+
+            .brand-logo {
+                width: 39px;
+                height: 39px;
+            }
+
+            .brand-name {
+                font-size: 20px;
+            }
+
+            .language-button {
+                min-width: 78px;
+
+                padding:
+                    9px
+                    10px;
+            }
+
+            .hero {
+                padding-top: 105px;
+            }
+
+            .hero-visual {
+                min-height: 350px;
+            }
+
+            .logo-card {
+                width: min(260px, 76vw);
+
+                border-radius: 35px;
+            }
+
+            .orbit {
+                width: min(325px, 92vw);
+            }
+
+            .orbit-second {
+                width: min(270px, 76vw);
+            }
+
+            .floating-chip {
+                display: none;
+            }
+
+            h1 {
+                font-size:
+                    clamp(41px, 13vw, 57px);
+
+                letter-spacing: -2px;
+            }
+
+            .hero-description {
+                font-size: 15px;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .section {
+                padding: 78px 0;
+            }
+
+            .section-heading {
+                margin-bottom: 32px;
+            }
+
+            .feature-card {
+                padding: 23px;
+            }
+
+            .platform-panel {
+                padding:
+                    35px
+                    18px;
+            }
+
+            .download-section {
+                padding:
+                    50px
+                    0
+                    85px;
+            }
+
+            .download-box {
+                padding:
+                    43px
+                    20px;
+
+                border-radius: 27px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+
+                text-align: center;
+            }
+        }
+
+        @media (
+            prefers-reduced-motion: reduce
+        ) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            *,
+            *::before,
+            *::after {
+                animation-duration:
+                    0.01ms !important;
+
+                animation-iteration-count:
+                    1 !important;
+
+                transition-duration:
+                    0.01ms !important;
+            }
+
+            .reveal {
+                opacity: 1;
+                transform: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="ambient ambient-green"></div>
+<div class="ambient ambient-green-two"></div>
+<div class="ambient ambient-red"></div>
+
+<header class="top-shell">
+
+    <nav class="navbar page">
+
+        <a
+                class="brand"
+                href="#home"
+                aria-label="SyDown"
+        >
+            <img
+                    class="brand-logo"
+                    src="sydown-logo.png"
+                    alt=""
+            >
+
+            <span class="brand-name">
+                SyDown
+            </span>
+        </a>
+
+        <div class="nav-links">
+
+            <a
+                    class="nav-link"
+                    href="#features"
+            >
+                <span class="ar">
+                    الميزات
+                </span>
+
+                <span class="en hidden">
+                    Features
+                </span>
+            </a>
+
+            <a
+                    class="nav-link"
+                    href="#platforms"
+            >
+                <span class="ar">
+                    المنصات
+                </span>
+
+                <span class="en hidden">
+                    Platforms
+                </span>
+            </a>
+
+            <a
+                    class="nav-link"
+                    href="#download"
+            >
+                <span class="ar">
+                    التنزيل
+                </span>
+
+                <span class="en hidden">
+                    Download
+                </span>
+            </a>
+
+            <a
+                    class="nav-link"
+                    href="https://github.com/Alshamii1/SyDown"
+            >
+                GitHub
+            </a>
+
+        </div>
+
+        <button
+                class="language-button"
+                id="languageButton"
+                type="button"
+                onclick="toggleLanguage()"
+        >
+            English
+        </button>
+
+    </nav>
+
+</header>
+
+<main>
+
+    <section
+            class="hero page"
+            id="home"
+    >
+
+        <div class="hero-copy">
+
+            <div class="eyebrow reveal">
+
+                <span class="eyebrow-dot"></span>
+
+                <span class="ar">
+                    تنزيل محلي على جهازك
+                </span>
+
+                <span class="en hidden">
+                    Local downloading on your device
+                </span>
+
+            </div>
+
+            <h1 class="reveal reveal-delay-1">
+
+                <span class="ar">
+                    نزّل الوسائط<br>
+                    بطريقتك مع
+                </span>
+
+                <span class="en hidden">
+                    Download media<br>
+                    your way with
+                </span>
+
+                <span class="gradient-text">
+                    SyDown
+                </span>
+
+            </h1>
+
+            <p
+                    class="
+                    hero-description
+                    ar
+                    reveal
+                    reveal-delay-2
+                "
+            >
+                تطبيق Android حديث لتنزيل الفيديو والصوت،
+                مع اختيار الجودة والتنزيل في الخلفية
+                وسجل للتنزيلات.
+                تتم عملية التحليل والتنزيل محليًا على جهازك.
+            </p>
+
+            <p
+                    class="
+                    hero-description
+                    en
+                    hidden
+                    reveal
+                    reveal-delay-2
+                "
+            >
+                A modern Android app for downloading
+                video and audio, with quality selection,
+                background downloads and download history.
+                Media analysis and downloading are performed
+                locally on your device.
+            </p>
+
+            <div
+                    class="
+                    actions
+                    reveal
+                    reveal-delay-3
+                "
+            >
+
+                <a
+                        class="
+                        button
+                        button-primary
+                    "
+                        href="https://github.com/Alshamii1/SyDown/releases"
+                >
+                    <span>↓</span>
+
+                    <span class="ar">
+                        تنزيل SyDown
+                    </span>
+
+                    <span class="en hidden">
+                        Download SyDown
+                    </span>
+                </a>
+
+                <a
+                        class="
+                        button
+                        button-secondary
+                    "
+                        href="https://github.com/Alshamii1/SyDown"
+                >
+                    GitHub
+                </a>
+
+            </div>
+
+        </div>
+
+        <div class="hero-visual reveal">
+
+            <div class="orbit"></div>
+            <div class="orbit orbit-second"></div>
+
+            <div class="hero-glow"></div>
+
+            <div class="logo-card">
+
+                <img
+                        class="hero-logo"
+                        src="sydown-logo.png"
+                        alt="SyDown"
+                >
+
+            </div>
+
+            <div class="floating-chip chip-one">
+                <span>●</span>
+
+                <span class="ar">
+                    تنزيل في الخلفية
+                </span>
+
+                <span class="en hidden">
+                    Background download
+                </span>
+            </div>
+
+            <div class="floating-chip chip-two">
+                <span>✓</span>
+
+                <span class="ar">
+                    معالجة محلية
+                </span>
+
+                <span class="en hidden">
+                    Local processing
+                </span>
+            </div>
+
+        </div>
+
+        <div class="scroll-indicator">
+
+            <span>
+                SCROLL
+            </span>
+
+            <div class="scroll-mouse"></div>
+
+        </div>
+
+    </section>
+
+    <section
+            class="section page"
+            id="features"
+    >
+
+        <div
+                class="
+                section-heading
+                reveal
+            "
+        >
+
+            <span class="section-kicker">
+                SYDOWN
+            </span>
+
+            <h2 class="ar">
+                مصمم للتنزيل بسهولة
+            </h2>
+
+            <h2 class="en hidden">
+                Built for easy downloading
+            </h2>
+
+            <p class="ar">
+                تجربة واضحة ومباشرة مع أهم الأدوات
+                التي تحتاجها لتنزيل الوسائط.
+            </p>
+
+            <p class="en hidden">
+                A focused experience with the essential
+                tools you need for media downloading.
+            </p>
+
+        </div>
+
+        <div class="features">
+
+            <article
+                    class="
+                    feature-card
+                    reveal
+                    reveal-delay-1
+                "
+            >
+
+                <div class="feature-icon">
+                    ↓
+                </div>
+
+                <h3 class="ar">
+                    فيديو وصوت
+                </h3>
+
+                <h3 class="en hidden">
+                    Video &amp; Audio
+                </h3>
+
+                <p class="ar">
+                    اختر جودة الفيديو المناسبة من الخيارات
+                    المتاحة للمحتوى، أو نزّل الصوت فقط.
+                </p>
+
+                <p class="en hidden">
+                    Choose from the video qualities available
+                    for the media, or download audio only.
+                </p>
+
+            </article>
+
+            <article
+                    class="
+                    feature-card
+                    reveal
+                    reveal-delay-2
+                "
+            >
+
+                <div class="feature-icon">
+                    ◷
+                </div>
+
+                <h3 class="ar">
+                    تنزيل في الخلفية
+                </h3>
+
+                <h3 class="en hidden">
+                    Background Downloads
+                </h3>
+
+                <p class="ar">
+                    استمر في التنزيل أثناء استخدام تطبيقات
+                    أخرى أو عندما تكون شاشة الهاتف مقفلة.
+                </p>
+
+                <p class="en hidden">
+                    Keep downloading while using other apps
+                    or while your phone screen is locked.
+                </p>
+
+            </article>
+
+            <article
+                    class="
+                    feature-card
+                    reveal
+                    reveal-delay-3
+                "
+            >
+
+                <div class="feature-icon">
+                    ✓
+                </div>
+
+                <h3 class="ar">
+                    محلي على الجهاز
+                </h3>
+
+                <h3 class="en hidden">
+                    Local Processing
+                </h3>
+
+                <p class="ar">
+                    يتم تحليل الروابط وتنزيل الوسائط
+                    محليًا على جهاز Android دون الاعتماد
+                    على خادم تنزيل خارجي.
+                </p>
+
+                <p class="en hidden">
+                    Link analysis and media downloading run
+                    locally on your Android device without
+                    an external download server.
+                </p>
+
+            </article>
+
+        </div>
+
+    </section>
+
+    <section
+            class="section page"
+            id="platforms"
+    >
+
+        <div
+                class="
+                section-heading
+                reveal
+            "
+        >
+
+            <span class="section-kicker">
+                PLATFORMS
+            </span>
+
+            <h2 class="ar">
+                المنصات المدعومة
+            </h2>
+
+            <h2 class="en hidden">
+                Supported Platforms
+            </h2>
+
+            <p class="ar">
+                يتم اختبار توافق SyDown عمليًا
+                مع المنصات التالية.
+            </p>
+
+            <p class="en hidden">
+                SyDown compatibility is tested
+                with the following platforms.
+            </p>
+
+        </div>
+
+        <div class="platform-panel reveal">
+
+            <div class="platforms">
+
+                <span class="platform">
+                    <span class="platform-dot"></span>
+                    YouTube
+                </span>
+
+                <span class="platform">
+                    <span class="platform-dot"></span>
+                    Facebook
+                </span>
+
+                <span class="platform">
+                    <span class="platform-dot"></span>
+                    Instagram
+                </span>
+
+                <span class="platform">
+                    <span class="platform-dot"></span>
+                    TikTok
+                </span>
+
+                <span class="platform">
+                    <span class="platform-dot"></span>
+                    Telegram
+                </span>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section
+            class="
+            download-section
+            page
+        "
+            id="download"
+    >
+
+        <div class="download-box reveal">
+
+            <img
+                    class="download-logo"
+                    src="sydown-logo.png"
+                    alt=""
+            >
+
+            <div class="release-note">
+                <span>●</span>
+                Android
+                <span>•</span>
+                SyDown
+            </div>
+
+            <h2 class="ar">
+                حمّل SyDown على Android
+            </h2>
+
+            <h2 class="en hidden">
+                Get SyDown for Android
+            </h2>
+
+            <p class="ar">
+                يتم نشر الإصدارات الرسمية عبر
+                GitHub Releases.
+                ومن هنا ستتمكن دائمًا من الوصول
+                إلى أحدث نسخة رسمية من SyDown.
+            </p>
+
+            <p class="en hidden">
+                Official releases are distributed through
+                GitHub Releases, giving you a stable place
+                to find the latest official SyDown version.
+            </p>
+
+            <a
+                    class="
+                    button
+                    button-primary
+                "
+                    href="https://github.com/Alshamii1/SyDown/releases"
+            >
+                <span>↓</span>
+
+                <span class="ar">
+                    عرض الإصدارات
+                </span>
+
+                <span class="en hidden">
+                    View Releases
+                </span>
+            </a>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+
+    <div class="page footer-inner">
+
+        <div class="footer-brand">
+
+            <img
+                    class="footer-logo"
+                    src="sydown-logo.png"
+                    alt=""
+            >
+
+            <span>
+                SyDown
+            </span>
+
+        </div>
+
+        <div>
+            ©
+            <span id="year"></span>
+            SyDown
+        </div>
+
+    </div>
+
+</footer>
+
+<script>
+    let currentLanguage = "ar";
+
+    function toggleLanguage() {
+        const arabicElements =
+            document.querySelectorAll(".ar");
+
+        const englishElements =
+            document.querySelectorAll(".en");
+
+        const button =
+            document.getElementById(
+                "languageButton"
+            );
+
+        if (currentLanguage === "ar") {
+            currentLanguage = "en";
+
+            document.documentElement.lang =
+                "en";
+
+            document.documentElement.dir =
+                "ltr";
+
+            arabicElements.forEach(
+                element => {
+                    element.classList.add(
+                        "hidden"
+                    );
+                }
+            );
+
+            englishElements.forEach(
+                element => {
+                    element.classList.remove(
+                        "hidden"
+                    );
+                }
+            );
+
+            button.textContent =
+                "العربية";
+        } else {
+            currentLanguage = "ar";
+
+            document.documentElement.lang =
+                "ar";
+
+            document.documentElement.dir =
+                "rtl";
+
+            englishElements.forEach(
+                element => {
+                    element.classList.add(
+                        "hidden"
+                    );
+                }
+            );
+
+            arabicElements.forEach(
+                element => {
+                    element.classList.remove(
+                        "hidden"
+                    );
+                }
+            );
+
+            button.textContent =
+                "English";
+        }
+    }
+
+    document.getElementById(
+        "year"
+    ).textContent =
+        new Date().getFullYear();
+
+    const revealElements =
+        document.querySelectorAll(
+            ".reveal"
+        );
+
+    const revealObserver =
+        new IntersectionObserver(
+            entries => {
+                entries.forEach(
+                    entry => {
+                        if (
+                            entry.isIntersecting
+                        ) {
+                            entry.target
+                                .classList
+                                .add(
+                                    "visible"
+                                );
+
+                            revealObserver
+                                .unobserve(
+                                    entry.target
+                                );
+                        }
+                    }
+                );
+            },
+            {
+                threshold: 0.12
+            }
+        );
+
+    revealElements.forEach(
+        element => {
+            revealObserver.observe(
+                element
+            );
+        }
+    );
+
+    const cards =
+        document.querySelectorAll(
+            ".feature-card"
+        );
+
+    cards.forEach(
+        card => {
+            card.addEventListener(
+                "mousemove",
+                event => {
+                    const rect =
+                        card.getBoundingClientRect();
+
+                    const x =
+                        event.clientX -
+                        rect.left;
+
+                    const y =
+                        event.clientY -
+                        rect.top;
+
+                    card.style
+                        .setProperty(
+                            "--mouse-x",
+                            `${x}px`
+                        );
+
+                    card.style
+                        .setProperty(
+                            "--mouse-y",
+                            `${y}px`
+                        );
+                }
+            );
+        }
+    );
+</script>
+
+</body>
+</html>
