@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.provider.Settings
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.rounded.Terminal
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -54,9 +56,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -75,6 +80,53 @@ private const val INSTAGRAM_URL =
 private const val FACEBOOK_URL =
     "https://web.facebook.com/profile.php?id=61594652085768"
 
+private const val SYDOWN_WEBSITE_URL =
+    "https://alshamii1.github.io/SyDown/"
+
+@Composable
+private fun isSettingsLightTheme(): Boolean =
+    MaterialTheme.colorScheme.background.luminance() > 0.5f
+
+@Composable
+private fun settingsPrimaryText(
+    darkAlpha: Float = 1f
+): Color =
+    if (isSettingsLightTheme()) {
+        MaterialTheme.colorScheme.onBackground.copy(
+            alpha = darkAlpha
+        )
+    } else {
+        Color.White.copy(
+            alpha = darkAlpha
+        )
+    }
+
+@Composable
+private fun settingsSecondaryText(
+    darkAlpha: Float = 0.55f
+): Color =
+    if (isSettingsLightTheme()) {
+        MaterialTheme.colorScheme.onSurfaceVariant.copy(
+            alpha = 0.88f
+        )
+    } else {
+        Color.White.copy(
+            alpha = darkAlpha
+        )
+    }
+
+@Composable
+private fun settingsDividerColor(): Color =
+    if (isSettingsLightTheme()) {
+        MaterialTheme.colorScheme.outline.copy(
+            alpha = 0.18f
+        )
+    } else {
+        Color.White.copy(
+            alpha = 0.055f
+        )
+    }
+
 @Composable
 fun SettingsScreen(
     contentPadding: PaddingValues,
@@ -83,9 +135,7 @@ fun SettingsScreen(
     onLanguageChanged: (AppLanguage) -> Unit,
     onThemeChanged: (AppThemeMode) -> Unit
 ) {
-    val context =
-        LocalContext.current
-
+    val context = LocalContext.current
     val currentScreenLayoutDirection =
         LocalLayoutDirection.current
 
@@ -118,19 +168,13 @@ fun SettingsScreen(
     }
 
     val cancelText =
-        stringResource(
-            R.string.cancel
-        )
+        stringResource(R.string.cancel)
 
     val doneText =
-        stringResource(
-            R.string.done
-        )
+        stringResource(R.string.done)
 
     val versionText =
-        stringResource(
-            R.string.version
-        )
+        stringResource(R.string.version)
 
     val localDownloadDescriptionText =
         stringResource(
@@ -143,59 +187,37 @@ fun SettingsScreen(
         )
 
     val languageSystemText =
-        stringResource(
-            R.string.language_system
-        )
+        stringResource(R.string.language_system)
 
     val arabicText =
-        stringResource(
-            R.string.arabic
-        )
+        stringResource(R.string.arabic)
 
     val englishText =
-        stringResource(
-            R.string.english
-        )
+        stringResource(R.string.english)
 
     val chooseThemeText =
-        stringResource(
-            R.string.choose_theme
-        )
+        stringResource(R.string.choose_theme)
 
     val themeSystemText =
-        stringResource(
-            R.string.theme_system
-        )
+        stringResource(R.string.theme_system)
 
     val themeDarkText =
-        stringResource(
-            R.string.theme_dark
-        )
+        stringResource(R.string.theme_dark)
 
     val themeLightText =
-        stringResource(
-            R.string.theme_light
-        )
+        stringResource(R.string.theme_light)
 
     val contactUsTitleText =
-        stringResource(
-            R.string.contact_us_title
-        )
+        stringResource(R.string.contact_us_title)
 
     val contactUsMessageText =
-        stringResource(
-            R.string.contact_us_message
-        )
+        stringResource(R.string.contact_us_message)
 
     val facebookText =
-        stringResource(
-            R.string.open_facebook
-        )
+        stringResource(R.string.open_facebook)
 
     val instagramText =
-        stringResource(
-            R.string.open_instagram
-        )
+        stringResource(R.string.open_instagram)
 
     val languageValue =
         when (languagePreference) {
@@ -240,11 +262,9 @@ fun SettingsScreen(
             modifier =
                 Modifier.fillMaxWidth(),
             text =
-                stringResource(
-                    R.string.settings
-                ),
+                stringResource(R.string.settings),
             color =
-                Color.White,
+                settingsPrimaryText(),
             fontSize = 27.sp,
             fontWeight =
                 FontWeight.Black,
@@ -264,14 +284,11 @@ fun SettingsScreen(
                 icon =
                     Icons.Rounded.Language,
                 title =
-                    stringResource(
-                        R.string.language
-                    ),
+                    stringResource(R.string.language),
                 subtitle =
                     languageValue,
                 onClick = {
-                    showLanguageDialog =
-                        true
+                    showLanguageDialog = true
                 }
             )
 
@@ -281,14 +298,11 @@ fun SettingsScreen(
                 icon =
                     Icons.Rounded.DarkMode,
                 title =
-                    stringResource(
-                        R.string.theme
-                    ),
+                    stringResource(R.string.theme),
                 subtitle =
                     themeValue,
                 onClick = {
-                    showThemeDialog =
-                        true
+                    showThemeDialog = true
                 }
             )
 
@@ -306,9 +320,7 @@ fun SettingsScreen(
                         R.string.download_folder_value
                     ),
                 onClick = {
-                    openDownloadFolder(
-                        context = context
-                    )
+                    openDownloadFolder(context)
                 }
             )
 
@@ -326,9 +338,7 @@ fun SettingsScreen(
                         R.string.notifications_description
                     ),
                 onClick = {
-                    openNotificationSettings(
-                        context = context
-                    )
+                    openNotificationSettings(context)
                 }
             )
 
@@ -338,16 +348,13 @@ fun SettingsScreen(
                 icon =
                     Icons.Rounded.Info,
                 title =
-                    stringResource(
-                        R.string.about
-                    ),
+                    stringResource(R.string.about),
                 subtitle =
                     stringResource(
                         R.string.app_information
                     ),
                 onClick = {
-                    showAboutDialog =
-                        true
+                    showAboutDialog = true
                 }
             )
         }
@@ -357,13 +364,14 @@ fun SettingsScreen(
                 icon =
                     Icons.Rounded.Share,
                 title =
-                    stringResource(
-                        R.string.share_app
-                    ),
+                    stringResource(R.string.share_app),
                 subtitle =
                     stringResource(
                         R.string.share_app_description
-                    )
+                    ),
+                onClick = {
+                    shareSyDown(context)
+                }
             )
 
             SettingDivider()
@@ -372,9 +380,7 @@ fun SettingsScreen(
                 icon =
                     Icons.Rounded.Star,
                 title =
-                    stringResource(
-                        R.string.rate_app
-                    ),
+                    stringResource(R.string.rate_app),
                 subtitle =
                     stringResource(
                         R.string.rate_app_description
@@ -387,16 +393,13 @@ fun SettingsScreen(
                 icon =
                     Icons.Rounded.SupportAgent,
                 title =
-                    stringResource(
-                        R.string.contact_us
-                    ),
+                    stringResource(R.string.contact_us),
                 subtitle =
                     stringResource(
                         R.string.contact_us_description
                     ),
                 onClick = {
-                    showContactDialog =
-                        true
+                    showContactDialog = true
                 }
             )
         }
@@ -418,9 +421,7 @@ fun SettingsScreen(
             text =
                 "SyDown v${BuildConfig.VERSION_NAME}",
             color =
-                Color.White.copy(
-                    alpha = 0.48f
-                ),
+                settingsSecondaryText(0.48f),
             fontSize = 12.sp,
             textAlign =
                 TextAlign.Center
@@ -434,7 +435,7 @@ fun SettingsScreen(
                     "OWNER BUILD",
                 color =
                     GlassGreen.copy(
-                        alpha = 0.72f
+                        alpha = 0.82f
                     ),
                 fontSize = 10.sp,
                 fontWeight =
@@ -484,12 +485,10 @@ fun SettingsScreen(
                 dialogLayoutDirection,
             onSelected = {
                 onLanguageChanged(it)
-                showLanguageDialog =
-                    false
+                showLanguageDialog = false
             },
             onDismiss = {
-                showLanguageDialog =
-                    false
+                showLanguageDialog = false
             }
         )
     }
@@ -527,12 +526,10 @@ fun SettingsScreen(
                 dialogLayoutDirection,
             onSelected = {
                 onThemeChanged(it)
-                showThemeDialog =
-                    false
+                showThemeDialog = false
             },
             onDismiss = {
-                showThemeDialog =
-                    false
+                showThemeDialog = false
             }
         )
     }
@@ -548,8 +545,7 @@ fun SettingsScreen(
             layoutDirection =
                 dialogLayoutDirection,
             onDismiss = {
-                showAboutDialog =
-                    false
+                showAboutDialog = false
             }
         )
     }
@@ -581,10 +577,42 @@ fun SettingsScreen(
                 )
             },
             onDismiss = {
-                showContactDialog =
-                    false
+                showContactDialog = false
             }
         )
+    }
+}
+
+private fun shareSyDown(
+    context: Context
+) {
+    val shareIntent =
+        Intent(
+            Intent.ACTION_SEND
+        ).apply {
+            type = "text/plain"
+
+            putExtra(
+                Intent.EXTRA_TEXT,
+                "SyDown\n$SYDOWN_WEBSITE_URL"
+            )
+        }
+
+    val chooser =
+        Intent.createChooser(
+            shareIntent,
+            "SyDown"
+        ).apply {
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+            )
+        }
+
+    try {
+        context.startActivity(chooser)
+    } catch (
+        ignored: Throwable
+    ) {
     }
 }
 
@@ -641,10 +669,7 @@ private fun tryOpenFolder(
         }
 
     return try {
-        context.startActivity(
-            intent
-        )
-
+        context.startActivity(intent)
         true
     } catch (
         ignored: Throwable
@@ -717,9 +742,7 @@ private fun openExternalLink(
         }
 
     try {
-        context.startActivity(
-            intent
-        )
+        context.startActivity(intent)
     } catch (
         ignored: Throwable
     ) {
@@ -773,7 +796,7 @@ private fun SyDownAboutDialog(
                 Box(
                     modifier =
                         Modifier
-                            .size(58.dp)
+                            .size(64.dp)
                             .clip(
                                 RoundedCornerShape(
                                     18.dp
@@ -781,7 +804,11 @@ private fun SyDownAboutDialog(
                             )
                             .background(
                                 GlassGreen.copy(
-                                    alpha = 0.10f
+                                    alpha =
+                                        if (
+                                            isSettingsLightTheme()
+                                        ) 0.10f
+                                        else 0.07f
                                 )
                             )
                             .syDownGlassBorder(
@@ -791,13 +818,17 @@ private fun SyDownAboutDialog(
                     contentAlignment =
                         Alignment.Center
                 ) {
-                    Text(
-                        text = "S",
-                        color =
-                            GlassGreen,
-                        fontSize = 28.sp,
-                        fontWeight =
-                            FontWeight.Black
+                    Image(
+                        painter =
+                            painterResource(
+                                R.drawable.ic_sydown_brand
+                            ),
+                        contentDescription =
+                            "SyDown",
+                        modifier =
+                            Modifier.size(50.dp),
+                        contentScale =
+                            ContentScale.Fit
                     )
                 }
 
@@ -807,7 +838,7 @@ private fun SyDownAboutDialog(
                     text =
                         appDisplayName,
                     color =
-                        Color.White,
+                        settingsPrimaryText(),
                     fontSize = 21.sp,
                     fontWeight =
                         FontWeight.Black,
@@ -818,9 +849,7 @@ private fun SyDownAboutDialog(
                 Box(
                     modifier =
                         Modifier
-                            .clip(
-                                CircleShape
-                            )
+                            .clip(CircleShape)
                             .background(
                                 GlassGreen.copy(
                                     alpha = 0.09f
@@ -847,9 +876,7 @@ private fun SyDownAboutDialog(
 
                 HorizontalDivider(
                     color =
-                        Color.White.copy(
-                            alpha = 0.07f
-                        )
+                        settingsDividerColor()
                 )
 
                 Text(
@@ -858,9 +885,7 @@ private fun SyDownAboutDialog(
                     text =
                         descriptionText,
                     color =
-                        Color.White.copy(
-                            alpha = 0.68f
-                        ),
+                        settingsSecondaryText(0.68f),
                     fontSize = 13.sp,
                     lineHeight = 20.sp,
                     textAlign =
@@ -972,7 +997,7 @@ private fun SyDownContactDialog(
                     text =
                         titleText,
                     color =
-                        Color.White,
+                        settingsPrimaryText(),
                     fontSize = 20.sp,
                     fontWeight =
                         FontWeight.Black,
@@ -986,9 +1011,7 @@ private fun SyDownContactDialog(
                     text =
                         messageText,
                     color =
-                        Color.White.copy(
-                            alpha = 0.64f
-                        ),
+                        settingsSecondaryText(0.64f),
                     fontSize = 13.sp,
                     lineHeight = 19.sp,
                     textAlign =
@@ -997,9 +1020,7 @@ private fun SyDownContactDialog(
 
                 HorizontalDivider(
                     color =
-                        Color.White.copy(
-                            alpha = 0.07f
-                        )
+                        settingsDividerColor()
                 )
 
                 ContactSocialRow(
@@ -1062,13 +1083,15 @@ private fun ContactSocialRow(
             Modifier
                 .fillMaxWidth()
                 .clip(
-                    RoundedCornerShape(
-                        17.dp
-                    )
+                    RoundedCornerShape(17.dp)
                 )
                 .background(
                     GlassGreen.copy(
-                        alpha = 0.045f
+                        alpha =
+                            if (
+                                isSettingsLightTheme()
+                            ) 0.065f
+                            else 0.045f
                     )
                 )
                 .syDownGlassBorder(
@@ -1091,9 +1114,7 @@ private fun ContactSocialRow(
                 Modifier
                     .size(40.dp)
                     .clip(
-                        RoundedCornerShape(
-                            12.dp
-                        )
+                        RoundedCornerShape(12.dp)
                     )
                     .background(
                         GlassGreen.copy(
@@ -1118,17 +1139,13 @@ private fun ContactSocialRow(
             modifier =
                 Modifier.weight(1f),
             verticalArrangement =
-                Arrangement.spacedBy(
-                    2.dp
-                )
+                Arrangement.spacedBy(2.dp)
         ) {
             Text(
                 text =
                     title,
                 color =
-                    Color.White.copy(
-                        alpha = 0.94f
-                    ),
+                    settingsPrimaryText(0.94f),
                 fontSize = 14.sp,
                 fontWeight =
                     FontWeight.Bold
@@ -1138,9 +1155,7 @@ private fun ContactSocialRow(
                 text =
                     subtitle,
                 color =
-                    Color.White.copy(
-                        alpha = 0.47f
-                    ),
+                    settingsSecondaryText(0.47f),
                 fontSize = 11.sp,
                 maxLines = 1,
                 overflow =
@@ -1154,9 +1169,7 @@ private fun ContactSocialRow(
             contentDescription =
                 null,
             tint =
-                Color.White.copy(
-                    alpha = 0.28f
-                ),
+                settingsSecondaryText(0.28f),
             modifier =
                 Modifier
                     .size(18.dp)
@@ -1320,9 +1333,7 @@ private fun OwnerToolsCard() {
                         R.string.owner_tools
                     ),
                 color =
-                    Color.White.copy(
-                        alpha = 0.88f
-                    ),
+                    settingsPrimaryText(0.88f),
                 fontSize = 13.sp,
                 fontWeight =
                     FontWeight.Bold
@@ -1350,9 +1361,7 @@ private fun OwnerToolsCard() {
                     verticalAlignment =
                         Alignment.CenterVertically,
                     horizontalArrangement =
-                        Arrangement.spacedBy(
-                            12.dp
-                        )
+                        Arrangement.spacedBy(12.dp)
                 ) {
                     Box(
                         modifier =
@@ -1374,9 +1383,7 @@ private fun OwnerToolsCard() {
                         if (isWorking) {
                             CircularProgressIndicator(
                                 modifier =
-                                    Modifier.size(
-                                        21.dp
-                                    ),
+                                    Modifier.size(21.dp),
                                 color =
                                     GlassGreen,
                                 strokeWidth =
@@ -1391,9 +1398,7 @@ private fun OwnerToolsCard() {
                                 tint =
                                     GlassGreen,
                                 modifier =
-                                    Modifier.size(
-                                        22.dp
-                                    )
+                                    Modifier.size(22.dp)
                             )
                         }
                     }
@@ -1402,16 +1407,12 @@ private fun OwnerToolsCard() {
                         modifier =
                             Modifier.weight(1f),
                         verticalArrangement =
-                            Arrangement.spacedBy(
-                                4.dp
-                            )
+                            Arrangement.spacedBy(4.dp)
                     ) {
                         Text(
                             text = "yt-dlp",
                             color =
-                                Color.White.copy(
-                                    alpha = 0.94f
-                                ),
+                                settingsPrimaryText(0.94f),
                             fontSize = 14.sp,
                             fontWeight =
                                 FontWeight.Bold
@@ -1484,9 +1485,7 @@ private fun OwnerToolsCard() {
                         text =
                             statusMessage.orEmpty(),
                         color =
-                            Color.White.copy(
-                                alpha = 0.52f
-                            ),
+                            settingsSecondaryText(0.52f),
                         fontSize = 11.sp,
                         lineHeight = 16.sp,
                         maxLines = 5,
@@ -1526,18 +1525,14 @@ private fun OwnerToolAction(
         verticalAlignment =
             Alignment.CenterVertically,
         horizontalArrangement =
-            Arrangement.spacedBy(
-                12.dp
-            )
+            Arrangement.spacedBy(12.dp)
     ) {
         Box(
             modifier =
                 Modifier
                     .size(38.dp)
                     .clip(
-                        RoundedCornerShape(
-                            12.dp
-                        )
+                        RoundedCornerShape(12.dp)
                     )
                     .background(
                         GlassGreen.copy(
@@ -1574,16 +1569,14 @@ private fun OwnerToolAction(
         Text(
             modifier =
                 Modifier.weight(1f),
-            text = title,
+            text =
+                title,
             color =
-                Color.White.copy(
-                    alpha =
-                        if (enabled) {
-                            0.88f
-                        } else {
-                            0.38f
-                        }
-                ),
+                if (enabled) {
+                    settingsPrimaryText(0.88f)
+                } else {
+                    settingsSecondaryText(0.38f)
+                },
             fontSize = 13.sp,
             fontWeight =
                 FontWeight.SemiBold
@@ -1595,14 +1588,11 @@ private fun OwnerToolAction(
             contentDescription =
                 null,
             tint =
-                Color.White.copy(
-                    alpha =
-                        if (enabled) {
-                            0.26f
-                        } else {
-                            0.10f
-                        }
-                ),
+                if (enabled) {
+                    settingsSecondaryText(0.26f)
+                } else {
+                    settingsSecondaryText(0.10f)
+                },
             modifier =
                 Modifier
                     .size(18.dp)
@@ -1642,15 +1632,17 @@ private fun AppIdentityCard() {
             Box(
                 modifier =
                     Modifier
-                        .size(64.dp)
+                        .size(70.dp)
                         .clip(
-                            RoundedCornerShape(
-                                19.dp
-                            )
+                            RoundedCornerShape(19.dp)
                         )
                         .background(
                             GlassGreen.copy(
-                                alpha = 0.09f
+                                alpha =
+                                    if (
+                                        isSettingsLightTheme()
+                                    ) 0.09f
+                                    else 0.06f
                             )
                         )
                         .syDownGlassBorder(
@@ -1659,13 +1651,17 @@ private fun AppIdentityCard() {
                 contentAlignment =
                     Alignment.Center
             ) {
-                Text(
-                    text = "S",
-                    color =
-                        GlassGreen,
-                    fontSize = 31.sp,
-                    fontWeight =
-                        FontWeight.Black
+                Image(
+                    painter =
+                        painterResource(
+                            R.drawable.ic_sydown_brand
+                        ),
+                    contentDescription =
+                        "SyDown",
+                    modifier =
+                        Modifier.size(56.dp),
+                    contentScale =
+                        ContentScale.Fit
                 )
             }
 
@@ -1685,7 +1681,7 @@ private fun AppIdentityCard() {
                             "SyDown"
                         },
                     color =
-                        Color.White,
+                        settingsPrimaryText(),
                     fontSize = 19.sp,
                     fontWeight =
                         FontWeight.Bold
@@ -1695,9 +1691,7 @@ private fun AppIdentityCard() {
                     text =
                         "${stringResource(R.string.version)} ${BuildConfig.VERSION_NAME}",
                     color =
-                        Color.White.copy(
-                            alpha = 0.55f
-                        ),
+                        settingsSecondaryText(0.55f),
                     fontSize = 12.sp
                 )
 
@@ -1794,13 +1788,15 @@ private fun SettingsRow(
                 Modifier
                     .size(42.dp)
                     .clip(
-                        RoundedCornerShape(
-                            13.dp
-                        )
+                        RoundedCornerShape(13.dp)
                     )
                     .background(
                         GlassGreen.copy(
-                            alpha = 0.09f
+                            alpha =
+                                if (
+                                    isSettingsLightTheme()
+                                ) 0.11f
+                                else 0.09f
                         )
                     ),
             contentAlignment =
@@ -1827,22 +1823,20 @@ private fun SettingsRow(
                 Arrangement.spacedBy(3.dp)
         ) {
             Text(
-                text = title,
+                text =
+                    title,
                 color =
-                    Color.White.copy(
-                        alpha = 0.94f
-                    ),
+                    settingsPrimaryText(0.94f),
                 fontSize = 14.sp,
                 fontWeight =
                     FontWeight.SemiBold
             )
 
             Text(
-                text = subtitle,
+                text =
+                    subtitle,
                 color =
-                    Color.White.copy(
-                        alpha = 0.47f
-                    ),
+                    settingsSecondaryText(0.47f),
                 fontSize = 12.sp,
                 lineHeight = 16.sp
             )
@@ -1854,9 +1848,7 @@ private fun SettingsRow(
             contentDescription =
                 null,
             tint =
-                Color.White.copy(
-                    alpha = 0.28f
-                ),
+                settingsSecondaryText(0.28f),
             modifier =
                 Modifier
                     .size(19.dp)
@@ -1885,9 +1877,7 @@ private fun SettingDivider() {
             ),
         thickness = 1.dp,
         color =
-            Color.White.copy(
-                alpha = 0.055f
-            )
+            settingsDividerColor()
     )
 }
 
@@ -1923,9 +1913,7 @@ private fun MadeForSyriaText() {
         text =
             styledText,
         color =
-            Color.White.copy(
-                alpha = 0.78f
-            ),
+            settingsPrimaryText(0.78f),
         fontSize = 13.sp,
         fontWeight =
             FontWeight.SemiBold,
@@ -1982,7 +1970,7 @@ private fun <T> ChoiceDialog(
                     text =
                         title,
                     color =
-                        Color.White,
+                        settingsPrimaryText(),
                     fontSize = 19.sp,
                     fontWeight =
                         FontWeight.Bold,
@@ -1995,13 +1983,15 @@ private fun <T> ChoiceDialog(
                         Modifier
                             .fillMaxWidth()
                             .clip(
-                                RoundedCornerShape(
-                                    16.dp
-                                )
+                                RoundedCornerShape(16.dp)
                             )
                             .background(
                                 GlassGreen.copy(
-                                    alpha = 0.035f
+                                    alpha =
+                                        if (
+                                            isSettingsLightTheme()
+                                        ) 0.06f
+                                        else 0.035f
                                 )
                             )
                             .syDownGlassBorder(
@@ -2042,8 +2032,8 @@ private fun <T> ChoiceDialog(
                                         selectedColor =
                                             GlassGreen,
                                         unselectedColor =
-                                            Color.White.copy(
-                                                alpha = 0.45f
+                                            settingsSecondaryText(
+                                                0.45f
                                             )
                                     )
                             )
@@ -2056,9 +2046,7 @@ private fun <T> ChoiceDialog(
                                 text =
                                     option.label,
                                 color =
-                                    Color.White.copy(
-                                        alpha = 0.90f
-                                    ),
+                                    settingsPrimaryText(0.90f),
                                 fontSize = 14.sp
                             )
                         }
@@ -2073,9 +2061,7 @@ private fun <T> ChoiceDialog(
                                         horizontal = 14.dp
                                     ),
                                 color =
-                                    Color.White.copy(
-                                        alpha = 0.055f
-                                    )
+                                    settingsDividerColor()
                             )
                         }
                     }

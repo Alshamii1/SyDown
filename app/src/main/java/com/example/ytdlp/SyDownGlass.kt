@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.luminance
 
 val GlassBlack = Color(0xFF030605)
 val GlassGreen = Color(0xFF00C866)
@@ -31,31 +32,88 @@ val GlassBorder = Color(0x3336E989)
 val GlassBorderSoft = Color(0x1FFFFFFF)
 
 @Composable
+private fun isSyDownLightTheme(): Boolean {
+    return MaterialTheme
+        .colorScheme
+        .background
+        .luminance() > 0.5f
+}
+
+@Composable
+fun syDownPrimaryTextColor(): Color {
+    return if (isSyDownLightTheme()) {
+        MaterialTheme.colorScheme.onBackground
+    } else {
+        Color.White
+    }
+}
+
+@Composable
+fun syDownSecondaryTextColor(
+    alpha: Float = 0.60f
+): Color {
+    return if (isSyDownLightTheme()) {
+        MaterialTheme
+            .colorScheme
+            .onBackground
+            .copy(alpha = alpha.coerceAtLeast(0.55f))
+    } else {
+        Color.White.copy(alpha = alpha)
+    }
+}
+
+@Composable
 fun SyDownGlassBackground(
     modifier: Modifier = Modifier,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val lightTheme =
+        isSyDownLightTheme()
+
     val baseGradient =
-        Brush.linearGradient(
-            colors =
-                listOf(
-                    Color(0xFF002F1A),
-                    Color(0xFF03130B),
-                    GlassBlack,
-                    Color(0xFF080605),
-                    Color(0xFF160506)
-                ),
-            start =
-                Offset(
-                    x = 0f,
-                    y = 0f
-                ),
-            end =
-                Offset(
-                    x = 1100f,
-                    y = 2100f
-                )
-        )
+        if (lightTheme) {
+            Brush.linearGradient(
+                colors =
+                    listOf(
+                        Color(0xFFE1F6E9),
+                        Color(0xFFF1F8F3),
+                        Color(0xFFF7F9F7),
+                        Color(0xFFFFF8F8),
+                        Color(0xFFF7F7F5)
+                    ),
+                start =
+                    Offset(
+                        x = 0f,
+                        y = 0f
+                    ),
+                end =
+                    Offset(
+                        x = 1100f,
+                        y = 2100f
+                    )
+            )
+        } else {
+            Brush.linearGradient(
+                colors =
+                    listOf(
+                        Color(0xFF002F1A),
+                        Color(0xFF03130B),
+                        GlassBlack,
+                        Color(0xFF080605),
+                        Color(0xFF160506)
+                    ),
+                start =
+                    Offset(
+                        x = 0f,
+                        y = 0f
+                    ),
+                end =
+                    Offset(
+                        x = 1100f,
+                        y = 2100f
+                    )
+            )
+        }
 
     Box(
         modifier =
@@ -70,15 +128,27 @@ fun SyDownGlassBackground(
                     .background(
                         Brush.radialGradient(
                             colors =
-                                listOf(
-                                    GlassGreen.copy(
-                                        alpha = 0.18f
-                                    ),
-                                    GlassGreen.copy(
-                                        alpha = 0.05f
-                                    ),
-                                    Color.Transparent
-                                ),
+                                if (lightTheme) {
+                                    listOf(
+                                        GlassGreen.copy(
+                                            alpha = 0.12f
+                                        ),
+                                        GlassGreen.copy(
+                                            alpha = 0.035f
+                                        ),
+                                        Color.Transparent
+                                    )
+                                } else {
+                                    listOf(
+                                        GlassGreen.copy(
+                                            alpha = 0.18f
+                                        ),
+                                        GlassGreen.copy(
+                                            alpha = 0.05f
+                                        ),
+                                        Color.Transparent
+                                    )
+                                },
                             center =
                                 Offset(
                                     x = 120f,
@@ -96,15 +166,27 @@ fun SyDownGlassBackground(
                     .background(
                         Brush.radialGradient(
                             colors =
-                                listOf(
-                                    GlassRed.copy(
-                                        alpha = 0.11f
-                                    ),
-                                    GlassRed.copy(
-                                        alpha = 0.025f
-                                    ),
-                                    Color.Transparent
-                                ),
+                                if (lightTheme) {
+                                    listOf(
+                                        GlassRed.copy(
+                                            alpha = 0.055f
+                                        ),
+                                        GlassRed.copy(
+                                            alpha = 0.012f
+                                        ),
+                                        Color.Transparent
+                                    )
+                                } else {
+                                    listOf(
+                                        GlassRed.copy(
+                                            alpha = 0.11f
+                                        ),
+                                        GlassRed.copy(
+                                            alpha = 0.025f
+                                        ),
+                                        Color.Transparent
+                                    )
+                                },
                             center =
                                 Offset(
                                     x = 930f,
@@ -126,35 +208,71 @@ fun SyDownGlassCard(
     strong: Boolean = false,
     content: @Composable ColumnScope.() -> Unit
 ) {
+    val lightTheme =
+        isSyDownLightTheme()
+
     val shape =
         RoundedCornerShape(radius)
 
+    val containerColor =
+        if (lightTheme) {
+            if (strong) {
+                Color.White.copy(
+                    alpha = 0.88f
+                )
+            } else {
+                Color.White.copy(
+                    alpha = 0.70f
+                )
+            }
+        } else {
+            if (strong) {
+                GlassSurfaceStrong
+            } else {
+                GlassSurface
+            }
+        }
+
+    val borderColor =
+        if (lightTheme) {
+            if (strong) {
+                GlassGreen.copy(
+                    alpha = 0.28f
+                )
+            } else {
+                Color(0xFF4D6657).copy(
+                    alpha = 0.20f
+                )
+            }
+        } else {
+            if (strong) {
+                GlassBorder
+            } else {
+                GlassBorderSoft
+            }
+        }
+
     Card(
-        modifier = modifier,
-        shape = shape,
+        modifier =
+            modifier,
+        shape =
+            shape,
         border =
             BorderStroke(
                 width = 1.dp,
-                color =
-                    if (strong) {
-                        GlassBorder
-                    } else {
-                        GlassBorderSoft
-                    }
+                color = borderColor
             ),
         colors =
             CardDefaults.cardColors(
                 containerColor =
-                    if (strong) {
-                        GlassSurfaceStrong
-                    } else {
-                        GlassSurface
-                    }
+                    containerColor
             ),
-        content = content
+        content =
+            content
     )
 }
 
+@Composable
 fun Modifier.syDownGlassBorder(
     radius: Dp = 20.dp,
     selected: Boolean = false
@@ -162,14 +280,43 @@ fun Modifier.syDownGlassBorder(
     val shape =
         RoundedCornerShape(radius)
 
-    return this.border(
-        width =
+    val lightTheme =
+        isSyDownLightTheme()
+
+    val brush =
+        if (lightTheme) {
             if (selected) {
-                1.2.dp
+                Brush.linearGradient(
+                    colors =
+                        listOf(
+                            GlassGreen.copy(
+                                alpha = 0.75f
+                            ),
+                            GlassGreen.copy(
+                                alpha = 0.30f
+                            ),
+                            Color(0xFF5D7565).copy(
+                                alpha = 0.20f
+                            )
+                        )
+                )
             } else {
-                1.dp
-            },
-        brush =
+                Brush.linearGradient(
+                    colors =
+                        listOf(
+                            Color(0xFF5D7565).copy(
+                                alpha = 0.22f
+                            ),
+                            GlassGreen.copy(
+                                alpha = 0.18f
+                            ),
+                            Color(0xFF5D7565).copy(
+                                alpha = 0.12f
+                            )
+                        )
+                )
+            }
+        } else {
             if (selected) {
                 Brush.linearGradient(
                     colors =
@@ -200,8 +347,20 @@ fun Modifier.syDownGlassBorder(
                             )
                         )
                 )
+            }
+        }
+
+    return this.border(
+        width =
+            if (selected) {
+                1.2.dp
+            } else {
+                1.dp
             },
-        shape = shape
+        brush =
+            brush,
+        shape =
+            shape
     )
 }
 

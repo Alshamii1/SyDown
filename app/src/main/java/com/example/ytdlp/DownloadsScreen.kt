@@ -32,6 +32,7 @@ import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,6 +46,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -80,6 +82,53 @@ private data class QuickDeleteDialogStrings(
     val deleteFromDevice: String,
     val cancel: String
 )
+
+@Composable
+private fun isDownloadsLightTheme(): Boolean {
+    return MaterialTheme
+        .colorScheme
+        .background
+        .luminance() > 0.5f
+}
+
+@Composable
+private fun downloadsPrimaryText(
+    alpha: Float = 1f
+): Color {
+    return if (isDownloadsLightTheme()) {
+        MaterialTheme
+            .colorScheme
+            .onBackground
+            .copy(alpha = alpha)
+    } else {
+        Color.White.copy(alpha = alpha)
+    }
+}
+
+@Composable
+private fun downloadsSecondaryText(
+    darkAlpha: Float = 0.50f
+): Color {
+    return if (isDownloadsLightTheme()) {
+        MaterialTheme
+            .colorScheme
+            .onBackground
+            .copy(alpha = 0.58f)
+    } else {
+        Color.White.copy(alpha = darkAlpha)
+    }
+}
+
+@Composable
+private fun downloadsNeutralSurface(
+    darkAlpha: Float = 0.04f
+): Color {
+    return if (isDownloadsLightTheme()) {
+        Color(0xFFE9EFEB)
+    } else {
+        Color.White.copy(alpha = darkAlpha)
+    }
+}
 
 @Composable
 fun DownloadsScreen(
@@ -567,8 +616,7 @@ private fun QuickDeleteGlassDialog(
 
                 Text(
                     text = strings.title,
-                    color =
-                        Color.White.copy(alpha = 0.96f),
+                    color = downloadsPrimaryText(0.96f),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     textAlign = TextAlign.Center
@@ -580,8 +628,7 @@ private fun QuickDeleteGlassDialog(
 
                 Text(
                     text = strings.message,
-                    color =
-                        Color.White.copy(alpha = 0.58f),
+                    color = downloadsSecondaryText(0.58f),
                     fontSize = 13.sp,
                     lineHeight = 20.sp,
                     textAlign = TextAlign.Center
@@ -632,12 +679,13 @@ private fun QuickDeleteOptionButton(
     onClick: () -> Unit
 ) {
     val radius = 16.dp
+    val lightTheme = isDownloadsLightTheme()
 
     val accent =
         if (destructive) {
             GlassRed
         } else {
-            Color.White
+            downloadsPrimaryText(0.92f)
         }
 
     Row(
@@ -652,7 +700,7 @@ private fun QuickDeleteOptionButton(
                     if (destructive) {
                         GlassRed.copy(alpha = 0.08f)
                     } else {
-                        Color.White.copy(alpha = 0.04f)
+                        downloadsNeutralSurface()
                     }
                 )
                 .syDownGlassBorder(
@@ -668,13 +716,20 @@ private fun QuickDeleteOptionButton(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = accent.copy(alpha = 0.92f),
+            tint =
+                if (destructive) {
+                    accent.copy(alpha = 0.92f)
+                } else if (lightTheme) {
+                    accent
+                } else {
+                    accent.copy(alpha = 0.92f)
+                },
             modifier = Modifier.size(19.dp)
         )
 
         Text(
             text = text,
-            color = accent.copy(alpha = 0.92f),
+            color = accent,
             fontSize = 13.sp,
             fontWeight = FontWeight.Bold,
             maxLines = 2,
@@ -739,8 +794,7 @@ private fun DeleteDeviceGlassDialog(
 
                 Text(
                     text = strings.title,
-                    color =
-                        Color.White.copy(alpha = 0.96f),
+                    color = downloadsPrimaryText(0.96f),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Black,
                     textAlign = TextAlign.Center
@@ -757,8 +811,7 @@ private fun DeleteDeviceGlassDialog(
                         } else {
                             strings.multipleMessage
                         },
-                    color =
-                        Color.White.copy(alpha = 0.58f),
+                    color = downloadsSecondaryText(0.58f),
                     fontSize = 13.sp,
                     lineHeight = 20.sp,
                     textAlign = TextAlign.Center
@@ -805,7 +858,11 @@ private fun GlassDialogButton(
         if (destructive) {
             GlassRed
         } else {
-            GlassGreen
+            if (isDownloadsLightTheme()) {
+                Color(0xFF007A3D)
+            } else {
+                GlassGreen
+            }
         }
 
     Box(
@@ -865,7 +922,7 @@ private fun NormalHeader(
                 stringResource(
                     R.string.download_history
                 ),
-            color = Color.White,
+            color = downloadsPrimaryText(),
             fontSize = 27.sp,
             fontWeight = FontWeight.Black,
             textAlign = TextAlign.Center
@@ -924,7 +981,7 @@ private fun SelectionHeader(
                     .size(38.dp)
                     .clip(CircleShape)
                     .background(
-                        Color.White.copy(alpha = 0.045f)
+                        downloadsNeutralSurface(0.045f)
                     )
                     .clickable(onClick = onClose),
             contentAlignment = Alignment.Center
@@ -932,8 +989,7 @@ private fun SelectionHeader(
             Icon(
                 imageVector = Icons.Rounded.Close,
                 contentDescription = null,
-                tint =
-                    Color.White.copy(alpha = 0.75f),
+                tint = downloadsPrimaryText(0.75f),
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -954,7 +1010,7 @@ private fun SelectionHeader(
                         selectedCount
                     )
                 },
-            color = Color.White,
+            color = downloadsPrimaryText(),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
@@ -994,7 +1050,12 @@ private fun SelectionHeader(
                     imageVector =
                         Icons.Rounded.SelectAll,
                     contentDescription = null,
-                    tint = GlassGreen,
+                    tint =
+                        if (isDownloadsLightTheme()) {
+                            Color(0xFF007A3D)
+                        } else {
+                            GlassGreen
+                        },
                     modifier = Modifier.size(17.dp)
                 )
 
@@ -1003,7 +1064,12 @@ private fun SelectionHeader(
                         stringResource(
                             R.string.select_all
                         ),
-                    color = GlassGreen,
+                    color =
+                        if (isDownloadsLightTheme()) {
+                            Color(0xFF007A3D)
+                        } else {
+                            GlassGreen
+                        },
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -1055,7 +1121,7 @@ private fun DeleteActionButton(
         if (destructive) {
             GlassRed
         } else {
-            Color.White
+            downloadsPrimaryText(0.90f)
         }
 
     val radius = 15.dp
@@ -1071,7 +1137,7 @@ private fun DeleteActionButton(
                     if (destructive) {
                         GlassRed.copy(alpha = 0.075f)
                     } else {
-                        Color.White.copy(alpha = 0.04f)
+                        downloadsNeutralSurface(0.04f)
                     }
                 )
                 .syDownGlassBorder(
@@ -1090,7 +1156,7 @@ private fun DeleteActionButton(
             Icon(
                 imageVector = Icons.Rounded.Delete,
                 contentDescription = null,
-                tint = color.copy(alpha = 0.90f),
+                tint = color,
                 modifier = Modifier.size(17.dp)
             )
 
@@ -1101,7 +1167,7 @@ private fun DeleteActionButton(
                         fill = false
                     ),
                 text = text,
-                color = color.copy(alpha = 0.90f),
+                color = color,
                 fontSize = 11.sp,
                 lineHeight = 14.sp,
                 fontWeight = FontWeight.Bold,
@@ -1182,10 +1248,7 @@ private fun DownloadHistoryCard(
                     ) {
                         Text(
                             text = item.title,
-                            color =
-                                Color.White.copy(
-                                    alpha = 0.94f
-                                ),
+                            color = downloadsPrimaryText(0.94f),
                             fontSize = 14.sp,
                             fontWeight =
                                 FontWeight.Bold,
@@ -1198,8 +1261,8 @@ private fun DownloadHistoryCard(
                             Text(
                                 text = item.uploader,
                                 color =
-                                    Color.White.copy(
-                                        alpha = 0.48f
+                                    downloadsSecondaryText(
+                                        0.48f
                                     ),
                                 fontSize = 11.sp,
                                 maxLines = 1,
@@ -1240,8 +1303,8 @@ private fun DownloadHistoryCard(
                                 Text(
                                     text = sizeText,
                                     color =
-                                        Color.White.copy(
-                                            alpha = 0.42f
+                                        downloadsSecondaryText(
+                                            0.42f
                                         ),
                                     fontSize = 10.sp
                                 )
@@ -1255,8 +1318,8 @@ private fun DownloadHistoryCard(
                                         item.downloadedAt
                                     ),
                                 color =
-                                    Color.White.copy(
-                                        alpha = 0.30f
+                                    downloadsSecondaryText(
+                                        0.30f
                                     ),
                                 fontSize = 10.sp
                             )
@@ -1452,7 +1515,12 @@ private fun HistoryMediaPreview(
                         Icons.Rounded.Movie
                     },
                 contentDescription = null,
-                tint = GlassGreen,
+                tint =
+                    if (isDownloadsLightTheme()) {
+                        Color(0xFF008A48)
+                    } else {
+                        GlassGreen
+                    },
                 modifier = Modifier.size(25.dp)
             )
         }
@@ -1467,6 +1535,12 @@ private fun HistoryActionButton(
     onClick: () -> Unit
 ) {
     val radius = 15.dp
+    val accent =
+        if (isDownloadsLightTheme()) {
+            Color(0xFF007A3D)
+        } else {
+            GlassGreen
+        }
 
     Box(
         modifier =
@@ -1493,14 +1567,13 @@ private fun HistoryActionButton(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = GlassGreen,
+                tint = accent,
                 modifier = Modifier.size(18.dp)
             )
 
             Text(
                 text = text,
-                color =
-                    Color.White.copy(alpha = 0.88f),
+                color = downloadsPrimaryText(0.88f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold
             )
@@ -1512,6 +1585,13 @@ private fun HistoryActionButton(
 private fun HistoryBadge(
     text: String
 ) {
+    val accent =
+        if (isDownloadsLightTheme()) {
+            Color(0xFF007A3D)
+        } else {
+            GlassGreen.copy(alpha = 0.92f)
+        }
+
     Box(
         modifier =
             Modifier
@@ -1526,8 +1606,7 @@ private fun HistoryBadge(
     ) {
         Text(
             text = text,
-            color =
-                GlassGreen.copy(alpha = 0.92f),
+            color = accent,
             fontSize = 9.sp,
             fontWeight = FontWeight.Bold
         )
@@ -1571,7 +1650,12 @@ private fun EmptyDownloadsCard() {
                     imageVector =
                         Icons.Rounded.Download,
                     contentDescription = null,
-                    tint = GlassGreen,
+                    tint =
+                        if (isDownloadsLightTheme()) {
+                            Color(0xFF008A48)
+                        } else {
+                            GlassGreen
+                        },
                     modifier = Modifier.size(34.dp)
                 )
             }
@@ -1585,8 +1669,7 @@ private fun EmptyDownloadsCard() {
                     stringResource(
                         R.string.no_downloads_yet
                     ),
-                color =
-                    Color.White.copy(alpha = 0.92f),
+                color = downloadsPrimaryText(0.92f),
                 fontSize = 17.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -1599,7 +1682,9 @@ private fun EmptyDownloadsCard() {
             Text(
                 text = "SyDown",
                 color =
-                    Color.White.copy(alpha = 0.38f),
+                    downloadsSecondaryText(
+                        0.38f
+                    ),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center

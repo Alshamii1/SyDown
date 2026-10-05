@@ -57,6 +57,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -99,11 +100,62 @@ private data class DownloadSheetStrings(
     val sizeUnknown: String
 )
 
+@Composable
+private fun isHomeLightTheme(): Boolean {
+    return MaterialTheme
+        .colorScheme
+        .background
+        .luminance() > 0.5f
+}
+
+@Composable
+private fun homePrimaryText(): Color {
+    return if (isHomeLightTheme()) {
+        MaterialTheme.colorScheme.onBackground
+    } else {
+        Color.White
+    }
+}
+
+@Composable
+private fun homeSecondaryText(
+    darkAlpha: Float = 0.55f
+): Color {
+    return if (isHomeLightTheme()) {
+        MaterialTheme
+            .colorScheme
+            .onBackground
+            .copy(
+                alpha = 0.62f
+            )
+    } else {
+        Color.White.copy(
+            alpha = darkAlpha
+        )
+    }
+}
+
+@Composable
+private fun homeInnerSurface(
+    darkAlpha: Float = 0.20f
+): Color {
+    return if (isHomeLightTheme()) {
+        Color(0xFFEDF2EE).copy(
+            alpha = 0.88f
+        )
+    } else {
+        Color.Black.copy(
+            alpha = darkAlpha
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     contentPadding: PaddingValues,
-    sharedUrl: String? = null
+    sharedUrl: String? = null,
+    uiState: HomeUiState
 ) {
     val context =
         LocalContext.current
@@ -154,36 +206,12 @@ fun HomeScreen(
                 )
         )
 
-    var url by remember {
-        mutableStateOf("")
-    }
-
     var initialized by remember {
         mutableStateOf(false)
     }
 
     var initializing by remember {
         mutableStateOf(true)
-    }
-
-    var analyzing by remember {
-        mutableStateOf(false)
-    }
-
-    var videoInfo by remember {
-        mutableStateOf<VideoInfo?>(null)
-    }
-
-    var errorMessage by remember {
-        mutableStateOf<String?>(null)
-    }
-
-    var showDownloadSheet by remember {
-        mutableStateOf(false)
-    }
-
-    var handledSharedUrl by remember {
-        mutableStateOf<String?>(null)
     }
 
     LaunchedEffect(Unit) {
@@ -200,7 +228,7 @@ fun HomeScreen(
                 error
             )
 
-            errorMessage =
+            uiState.errorMessage =
                 SyDownFriendlyErrors
                     .message(
                         context,
@@ -233,35 +261,27 @@ fun HomeScreen(
         }
 
         if (
-            handledSharedUrl ==
+            uiState.handledSharedUrl ==
             incomingUrl
         ) {
             return@LaunchedEffect
         }
 
-        handledSharedUrl =
+        uiState.handledSharedUrl =
             incomingUrl
 
-        url =
+        uiState.setIncomingUrl(
             incomingUrl
-
-        videoInfo =
-            null
-
-        errorMessage =
-            null
-
-        showDownloadSheet =
-            false
+        )
 
         DownloadServiceState
             .clearFinishedState()
 
-        analyzing =
+        uiState.analyzing =
             true
 
         try {
-            videoInfo =
+            uiState.videoInfo =
                 YtDlpManager
                     .getVideoInfo(
                         incomingUrl
@@ -273,14 +293,14 @@ fun HomeScreen(
                 error
             )
 
-            errorMessage =
+            uiState.errorMessage =
                 SyDownFriendlyErrors
                     .message(
                         context,
                         error
                     )
         } finally {
-            analyzing =
+            uiState.analyzing =
                 false
         }
     }
@@ -305,11 +325,10 @@ fun HomeScreen(
         CenteredGlassHeader()
 
         GlassLinkCard(
-            url = url,
+            url =
+                uiState.url,
             onUrlChanged = {
-                url = it
-                videoInfo = null
-                errorMessage = null
+                uiState.updateUrl(it)
             },
             onPaste = {
                 val clipboard =
@@ -327,20 +346,27 @@ fun HomeScreen(
                         .orEmpty()
 
                 if (text.isNotBlank()) {
-                    url = text
-                    videoInfo = null
-                    errorMessage = null
+                    uiState.updateUrl(
+                        text
+                    )
                 }
             },
-            analyzing = analyzing,
-            initializing = initializing,
+            analyzing =
+                uiState.analyzing,
+            initializing =
+                initializing,
             analyzeEnabled =
                 initialized &&
                         !backgroundState.isRunning,
             onAnalyze = {
-                analyzing = true
-                videoInfo = null
-                errorMessage = null
+                uiState.analyzing =
+                    true
+
+                uiState.videoInfo =
+                    null
+
+                uiState.errorMessage =
+                    null
 
                 if (!backgroundState.isRunning) {
                     DownloadServiceState
@@ -349,10 +375,10 @@ fun HomeScreen(
 
                 scope.launch {
                     try {
-                        videoInfo =
+                        uiState.videoInfo =
                             YtDlpManager
                                 .getVideoInfo(
-                                    url.trim()
+                                    uiState.url.trim()
                                 )
                     } catch (error: Throwable) {
                         Log.e(
@@ -361,59 +387,65 @@ fun HomeScreen(
                             error
                         )
 
-                        errorMessage =
+                        uiState.errorMessage =
                             SyDownFriendlyErrors
                                 .message(
                                     context,
                                     error
                                 )
                     } finally {
-                        analyzing = false
+                        uiState.analyzing =
+                            false
                     }
                 }
             }
         )
 
-        errorMessage?.let { message ->
-            GlassErrorCard(message)
-        }
+        uiState.errorMessage
+            ?.let { message ->
+                GlassErrorCard(
+                    message
+                )
+            }
 
         GlassPlatformsSection()
 
-        videoInfo?.let { info ->
-            GlassMediaCard(
-                info = info,
-                downloadState =
-                    backgroundState,
-                onDownloadClick = {
-                    showDownloadSheet =
-                        true
-                },
-                onCancel = {
-                    try {
-                        context.startService(
-                            DownloadService
-                                .createCancelIntent(
-                                    context
-                                )
-                        )
-                    } catch (error: Throwable) {
-                        Log.e(
-                            "SYDOWN",
-                            "Could not cancel download",
-                            error
-                        )
+        uiState.videoInfo
+            ?.let { info ->
+                GlassMediaCard(
+                    info =
+                        info,
+                    downloadState =
+                        backgroundState,
+                    onDownloadClick = {
+                        uiState.showDownloadSheet =
+                            true
+                    },
+                    onCancel = {
+                        try {
+                            context.startService(
+                                DownloadService
+                                    .createCancelIntent(
+                                        context
+                                    )
+                            )
+                        } catch (error: Throwable) {
+                            Log.e(
+                                "SYDOWN",
+                                "Could not cancel download",
+                                error
+                            )
 
-                        errorMessage =
-                            SyDownFriendlyErrors
-                                .message(
-                                    context,
-                                    error
-                                )
+                            uiState.errorMessage =
+                                SyDownFriendlyErrors
+                                    .message(
+                                        context,
+                                        error
+                                    )
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
 
         Spacer(
             modifier =
@@ -422,10 +454,10 @@ fun HomeScreen(
     }
 
     val currentVideoInfo =
-        videoInfo
+        uiState.videoInfo
 
     if (
-        showDownloadSheet &&
+        uiState.showDownloadSheet &&
         currentVideoInfo != null
     ) {
         GlassDownloadSheet(
@@ -434,7 +466,7 @@ fun HomeScreen(
             strings =
                 sheetStrings,
             onDismiss = {
-                showDownloadSheet =
+                uiState.showDownloadSheet =
                     false
             },
             onVideoSelected = { option ->
@@ -442,7 +474,7 @@ fun HomeScreen(
                     val request =
                         DownloadRequest.from(
                             url =
-                                url.trim(),
+                                uiState.url.trim(),
                             option =
                                 option,
                             videoInfo =
@@ -465,7 +497,7 @@ fun HomeScreen(
                             intent
                         )
 
-                    showDownloadSheet =
+                    uiState.showDownloadSheet =
                         false
                 } catch (error: Throwable) {
                     Log.e(
@@ -474,14 +506,14 @@ fun HomeScreen(
                         error
                     )
 
-                    errorMessage =
+                    uiState.errorMessage =
                         SyDownFriendlyErrors
                             .message(
                                 context,
                                 error
                             )
 
-                    showDownloadSheet =
+                    uiState.showDownloadSheet =
                         false
                 }
             },
@@ -490,7 +522,7 @@ fun HomeScreen(
                     val request =
                         DownloadRequest.from(
                             url =
-                                url.trim(),
+                                uiState.url.trim(),
                             option =
                                 option,
                             videoInfo =
@@ -513,7 +545,7 @@ fun HomeScreen(
                             intent
                         )
 
-                    showDownloadSheet =
+                    uiState.showDownloadSheet =
                         false
                 } catch (error: Throwable) {
                     Log.e(
@@ -522,14 +554,14 @@ fun HomeScreen(
                         error
                     )
 
-                    errorMessage =
+                    uiState.errorMessage =
                         SyDownFriendlyErrors
                             .message(
                                 context,
                                 error
                             )
 
-                    showDownloadSheet =
+                    uiState.showDownloadSheet =
                         false
                 }
             }
@@ -541,12 +573,13 @@ fun HomeScreen(
 private fun CenteredGlassHeader() {
     val nameBrush =
         Brush.horizontalGradient(
-            colors = listOf(
-                Color(0xFF35F4C2),
-                Color(0xFF00E58A),
-                GlassGreen,
-                Color(0xFF00A95A)
-            )
+            colors =
+                listOf(
+                    Color(0xFF35F4C2),
+                    Color(0xFF00E58A),
+                    GlassGreen,
+                    Color(0xFF00A95A)
+                )
         )
 
     Column(
@@ -577,13 +610,18 @@ private fun CenteredGlassHeader() {
             )
 
             Text(
-                text = "SyDown",
+                text =
+                    "SyDown",
                 style =
                     TextStyle(
-                        brush = nameBrush,
-                        fontSize = 27.sp,
-                        fontWeight = FontWeight.Black,
-                        textDirection = TextDirection.Ltr
+                        brush =
+                            nameBrush,
+                        fontSize =
+                            27.sp,
+                        fontWeight =
+                            FontWeight.Black,
+                        textDirection =
+                            TextDirection.Ltr
                     )
             )
         }
@@ -598,13 +636,19 @@ private fun CenteredGlassHeader() {
                     "MEDIA DOWNLOADER"
                 },
             color =
-                GlassGreen.copy(
-                    alpha = 0.88f
-                ),
-            fontSize = 9.sp,
+                if (isHomeLightTheme()) {
+                    Color(0xFF007D45)
+                } else {
+                    GlassGreen.copy(
+                        alpha = 0.88f
+                    )
+                },
+            fontSize =
+                9.sp,
             fontWeight =
                 FontWeight.Bold,
-            letterSpacing = 1.15.sp,
+            letterSpacing =
+                1.15.sp,
             textAlign =
                 TextAlign.Center
         )
@@ -621,11 +665,19 @@ private fun GlassLinkCard(
     analyzeEnabled: Boolean,
     onAnalyze: () -> Unit
 ) {
+    val lightTheme =
+        isHomeLightTheme()
+
+    val primaryText =
+        homePrimaryText()
+
     SyDownGlassCard(
         modifier =
             Modifier.fillMaxWidth(),
-        radius = 26.dp,
-        strong = true
+        radius =
+            26.dp,
+        strong =
+            true
     ) {
         Column(
             modifier =
@@ -638,37 +690,51 @@ private fun GlassLinkCard(
                     stringResource(
                         R.string.paste_media_link
                     ),
-                color = Color.White,
+                color =
+                    primaryText,
                 fontWeight =
                     FontWeight.Bold,
-                fontSize = 15.sp
+                fontSize =
+                    15.sp
             )
 
             OutlinedTextField(
-                value = url,
+                value =
+                    url,
                 onValueChange =
                     onUrlChanged,
                 modifier =
                     Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
-                        text = "https://...",
+                        text =
+                            "https://...",
                         color =
-                            Color.White.copy(
-                                alpha = 0.38f
-                            )
+                            if (lightTheme) {
+                                MaterialTheme
+                                    .colorScheme
+                                    .onBackground
+                                    .copy(
+                                        alpha = 0.38f
+                                    )
+                            } else {
+                                Color.White.copy(
+                                    alpha = 0.38f
+                                )
+                            }
                     )
                 },
-                singleLine = true,
+                singleLine =
+                    true,
                 shape =
                     RoundedCornerShape(18.dp),
                 colors =
                     OutlinedTextFieldDefaults
                         .colors(
                             focusedTextColor =
-                                Color.White,
+                                primaryText,
                             unfocusedTextColor =
-                                Color.White,
+                                primaryText,
                             cursorColor =
                                 GlassGreen,
                             focusedBorderColor =
@@ -676,17 +742,35 @@ private fun GlassLinkCard(
                                     alpha = 0.85f
                                 ),
                             unfocusedBorderColor =
-                                Color.White.copy(
-                                    alpha = 0.12f
-                                ),
+                                if (lightTheme) {
+                                    Color(0xFF597063).copy(
+                                        alpha = 0.28f
+                                    )
+                                } else {
+                                    Color.White.copy(
+                                        alpha = 0.12f
+                                    )
+                                },
                             focusedContainerColor =
-                                Color.Black.copy(
-                                    alpha = 0.18f
-                                ),
+                                if (lightTheme) {
+                                    Color(0xFFE7EDE8).copy(
+                                        alpha = 0.82f
+                                    )
+                                } else {
+                                    Color.Black.copy(
+                                        alpha = 0.18f
+                                    )
+                                },
                             unfocusedContainerColor =
-                                Color.Black.copy(
-                                    alpha = 0.14f
-                                )
+                                if (lightTheme) {
+                                    Color(0xFFE7EDE8).copy(
+                                        alpha = 0.76f
+                                    )
+                                } else {
+                                    Color.Black.copy(
+                                        alpha = 0.14f
+                                    )
+                                }
                         ),
                 trailingIcon = {
                     IconButton(
@@ -701,7 +785,11 @@ private fun GlassLinkCard(
                                     R.string.paste
                                 ),
                             tint =
-                                GlassGreen
+                                if (lightTheme) {
+                                    Color(0xFF009A51)
+                                } else {
+                                    GlassGreen
+                                }
                         )
                     }
                 }
@@ -731,13 +819,21 @@ private fun GlassLinkCard(
                             contentColor =
                                 Color.Black,
                             disabledContainerColor =
-                                Color.White.copy(
-                                    alpha = 0.07f
-                                ),
+                                if (lightTheme) {
+                                    Color(0xFFCDD5CF)
+                                } else {
+                                    Color.White.copy(
+                                        alpha = 0.07f
+                                    )
+                                },
                             disabledContentColor =
-                                Color.White.copy(
-                                    alpha = 0.28f
-                                )
+                                if (lightTheme) {
+                                    Color(0xFF657069)
+                                } else {
+                                    Color.White.copy(
+                                        alpha = 0.28f
+                                    )
+                                }
                         )
             ) {
                 if (
@@ -757,9 +853,13 @@ private fun GlassLinkCard(
                             ) {
                                 Color.Black
                             } else {
-                                Color.White.copy(
-                                    alpha = 0.4f
-                                )
+                                if (lightTheme) {
+                                    Color(0xFF657069)
+                                } else {
+                                    Color.White.copy(
+                                        alpha = 0.4f
+                                    )
+                                }
                             }
                     )
 
@@ -801,6 +901,14 @@ private fun GlassLinkCard(
 
 @Composable
 private fun GlassPlatformsSection() {
+    val primaryText =
+        homePrimaryText()
+
+    val secondaryText =
+        homeSecondaryText(
+            darkAlpha = 0.50f
+        )
+
     Column(
         modifier =
             Modifier.fillMaxWidth(),
@@ -817,7 +925,7 @@ private fun GlassPlatformsSection() {
                     R.string.supported_platforms
                 ),
             color =
-                Color.White,
+                primaryText,
             style =
                 MaterialTheme
                     .typography
@@ -831,7 +939,8 @@ private fun GlassPlatformsSection() {
         SyDownGlassCard(
             modifier =
                 Modifier.fillMaxWidth(),
-            radius = 24.dp
+            radius =
+                24.dp
         ) {
             Row(
                 modifier =
@@ -917,9 +1026,7 @@ private fun GlassPlatformsSection() {
                     R.string.supported_platforms_note
                 ),
             color =
-                Color.White.copy(
-                    alpha = 0.50f
-                ),
+                secondaryText,
             style =
                 MaterialTheme
                     .typography
@@ -936,6 +1043,9 @@ private fun GlassPlatformItem(
     iconRes: Int,
     name: String
 ) {
+    val lightTheme =
+        isHomeLightTheme()
+
     Column(
         modifier =
             modifier.padding(
@@ -956,9 +1066,13 @@ private fun GlassPlatformItem(
                         )
                     )
                     .background(
-                        Color.Black.copy(
-                            alpha = 0.18f
-                        )
+                        if (lightTheme) {
+                            Color(0xFFE8EEE9)
+                        } else {
+                            Color.Black.copy(
+                                alpha = 0.18f
+                            )
+                        }
                     )
                     .syDownGlassBorder(
                         radius = 14.dp,
@@ -979,7 +1093,11 @@ private fun GlassPlatformItem(
                         22.dp
                     ),
                 tint =
-                    GlassGreen
+                    if (lightTheme) {
+                        Color(0xFF009A51)
+                    } else {
+                        GlassGreen
+                    }
             )
         }
 
@@ -989,15 +1107,26 @@ private fun GlassPlatformItem(
             text =
                 name,
             color =
-                Color.White.copy(
-                    alpha = 0.82f
-                ),
-            fontSize = 9.sp,
+                if (lightTheme) {
+                    MaterialTheme
+                        .colorScheme
+                        .onBackground
+                        .copy(
+                            alpha = 0.80f
+                        )
+                } else {
+                    Color.White.copy(
+                        alpha = 0.82f
+                    )
+                },
+            fontSize =
+                9.sp,
             fontWeight =
                 FontWeight.SemiBold,
             textAlign =
                 TextAlign.Center,
-            maxLines = 1,
+            maxLines =
+                1,
             overflow =
                 TextOverflow.Clip
         )
@@ -1014,8 +1143,10 @@ private fun GlassMediaCard(
     SyDownGlassCard(
         modifier =
             Modifier.fillMaxWidth(),
-        radius = 28.dp,
-        strong = true
+        radius =
+            28.dp,
+        strong =
+            true
     ) {
         Column {
             if (
@@ -1095,14 +1226,15 @@ private fun GlassMediaCard(
                     text =
                         info.title,
                     color =
-                        Color.White,
+                        homePrimaryText(),
                     style =
                         MaterialTheme
                             .typography
                             .titleMedium,
                     fontWeight =
                         FontWeight.Black,
-                    maxLines = 2,
+                    maxLines =
+                        2,
                     overflow =
                         TextOverflow.Ellipsis
                 )
@@ -1116,14 +1248,15 @@ private fun GlassMediaCard(
                             text =
                                 uploader,
                             color =
-                                Color.White.copy(
-                                    alpha = 0.5f
+                                homeSecondaryText(
+                                    darkAlpha = 0.50f
                                 ),
                             style =
                                 MaterialTheme
                                     .typography
                                     .bodySmall,
-                            maxLines = 1,
+                            maxLines =
+                                1,
                             overflow =
                                 TextOverflow.Ellipsis
                         )
@@ -1196,11 +1329,15 @@ private fun GlassInlineDownloadStatus(
     state: BackgroundDownloadState,
     onCancel: () -> Unit
 ) {
+    val lightTheme =
+        isHomeLightTheme()
+
     val progress =
         state.progress
 
     val percent =
-        progress?.safePercent ?: 0f
+        progress?.safePercent
+            ?: 0f
 
     val waiting =
         state.isRunning &&
@@ -1220,8 +1357,8 @@ private fun GlassInlineDownloadStatus(
                     )
                 )
                 .background(
-                    Color.Black.copy(
-                        alpha = 0.20f
+                    homeInnerSurface(
+                        darkAlpha = 0.20f
                     )
                 )
                 .syDownGlassBorder(
@@ -1273,14 +1410,18 @@ private fun GlassInlineDownloadStatus(
                 color =
                     when {
                         state.completedSuccessfully ->
-                            GlassGreen
+                            if (lightTheme) {
+                                Color(0xFF007A3D)
+                            } else {
+                                GlassGreen
+                            }
 
                         state.cancelled ||
                                 state.errorMessage != null ->
                             GlassRed
 
                         else ->
-                            Color.White
+                            homePrimaryText()
                     },
                 fontWeight =
                     FontWeight.Bold
@@ -1294,7 +1435,11 @@ private fun GlassInlineDownloadStatus(
                     text =
                         state.qualityLabel,
                     color =
-                        GlassGreen,
+                        if (lightTheme) {
+                            Color(0xFF007A3D)
+                        } else {
+                            GlassGreen
+                        },
                     fontWeight =
                         FontWeight.Black
                 )
@@ -1314,9 +1459,13 @@ private fun GlassInlineDownloadStatus(
                     color =
                         GlassGreen,
                     trackColor =
-                        Color.White.copy(
-                            alpha = 0.08f
-                        )
+                        if (lightTheme) {
+                            Color(0xFFD0D9D2)
+                        } else {
+                            Color.White.copy(
+                                alpha = 0.08f
+                            )
+                        }
                 )
             } else {
                 LinearProgressIndicator(
@@ -1333,9 +1482,13 @@ private fun GlassInlineDownloadStatus(
                     color =
                         GlassGreen,
                     trackColor =
-                        Color.White.copy(
-                            alpha = 0.08f
-                        )
+                        if (lightTheme) {
+                            Color(0xFFD0D9D2)
+                        } else {
+                            Color.White.copy(
+                                alpha = 0.08f
+                            )
+                        }
                 )
             }
 
@@ -1355,8 +1508,8 @@ private fun GlassInlineDownloadStatus(
                                 )
                     },
                 color =
-                    Color.White.copy(
-                        alpha = 0.56f
+                    homeSecondaryText(
+                        darkAlpha = 0.56f
                     ),
                 style =
                     MaterialTheme
@@ -1398,6 +1551,9 @@ private fun GlassDownloadSheet(
     onVideoSelected: (DownloadOption) -> Unit,
     onAudioSelected: (AudioDownloadOption) -> Unit
 ) {
+    val lightTheme =
+        isHomeLightTheme()
+
     val sheetState =
         rememberModalBottomSheetState(
             skipPartiallyExpanded =
@@ -1432,12 +1588,21 @@ private fun GlassDownloadSheet(
         sheetState =
             sheetState,
         containerColor =
-            Color(0xFF09100C),
+            if (lightTheme) {
+                Color(0xFFF7FAF8)
+            } else {
+                Color(0xFF09100C)
+            },
         contentColor =
-            Color.White,
+            homePrimaryText(),
         scrimColor =
             Color.Black.copy(
-                alpha = 0.72f
+                alpha =
+                    if (lightTheme) {
+                        0.38f
+                    } else {
+                        0.72f
+                    }
             )
     ) {
         Column(
@@ -1469,7 +1634,7 @@ private fun GlassDownloadSheet(
                     text =
                         strings.chooseFormat,
                     color =
-                        Color.White,
+                        homePrimaryText(),
                     style =
                         MaterialTheme
                             .typography
@@ -1488,7 +1653,7 @@ private fun GlassDownloadSheet(
                         contentDescription =
                             strings.cancel,
                         tint =
-                            Color.White
+                            homePrimaryText()
                     )
                 }
             }
@@ -1538,8 +1703,8 @@ private fun GlassDownloadSheet(
                 text =
                     strings.startsInBackground,
                 color =
-                    Color.White.copy(
-                        alpha = 0.48f
+                    homeSecondaryText(
+                        darkAlpha = 0.48f
                     ),
                 style =
                     MaterialTheme
@@ -1549,9 +1714,15 @@ private fun GlassDownloadSheet(
 
             HorizontalDivider(
                 color =
-                    Color.White.copy(
-                        alpha = 0.08f
-                    )
+                    if (lightTheme) {
+                        Color(0xFF617168).copy(
+                            alpha = 0.18f
+                        )
+                    } else {
+                        Color.White.copy(
+                            alpha = 0.08f
+                        )
+                    }
             )
 
             when (selectedTab) {
@@ -1564,8 +1735,8 @@ private fun GlassDownloadSheet(
                             text =
                                 strings.noVideoFormats,
                             color =
-                                Color.White.copy(
-                                    alpha = 0.6f
+                                homeSecondaryText(
+                                    darkAlpha = 0.60f
                                 )
                         )
                     } else {
@@ -1602,8 +1773,8 @@ private fun GlassDownloadSheet(
                             text =
                                 strings.noAudioFormats,
                             color =
-                                Color.White.copy(
-                                    alpha = 0.6f
+                                homeSecondaryText(
+                                    darkAlpha = 0.60f
                                 )
                         )
                     } else {
@@ -1643,24 +1814,40 @@ private fun GlassSheetTab(
     text: String,
     onClick: () -> Unit
 ) {
+    val lightTheme =
+        isHomeLightTheme()
+
     val background =
         if (selected) {
             GlassGreen.copy(
                 alpha = 0.90f
             )
         } else {
-            Color.Black.copy(
-                alpha = 0.24f
-            )
+            if (lightTheme) {
+                Color(0xFFE7EDE8)
+            } else {
+                Color.Black.copy(
+                    alpha = 0.24f
+                )
+            }
         }
 
     val content =
         if (selected) {
             Color.Black
         } else {
-            Color.White.copy(
-                alpha = 0.72f
-            )
+            if (lightTheme) {
+                MaterialTheme
+                    .colorScheme
+                    .onBackground
+                    .copy(
+                        alpha = 0.75f
+                    )
+            } else {
+                Color.White.copy(
+                    alpha = 0.72f
+                )
+            }
         }
 
     Row(
@@ -1721,6 +1908,9 @@ private fun GlassDownloadChoice(
     downloadDescription: String,
     onClick: () -> Unit
 ) {
+    val lightTheme =
+        isHomeLightTheme()
+
     Row(
         modifier =
             Modifier
@@ -1731,9 +1921,15 @@ private fun GlassDownloadChoice(
                     )
                 )
                 .background(
-                    Color.Black.copy(
-                        alpha = 0.25f
-                    )
+                    if (lightTheme) {
+                        Color(0xFFEAF0EB).copy(
+                            alpha = 0.90f
+                        )
+                    } else {
+                        Color.Black.copy(
+                            alpha = 0.25f
+                        )
+                    }
                 )
                 .syDownGlassBorder(
                     radius = 19.dp
@@ -1760,7 +1956,12 @@ private fun GlassDownloadChoice(
                     )
                     .background(
                         GlassGreen.copy(
-                            alpha = 0.13f
+                            alpha =
+                                if (lightTheme) {
+                                    0.11f
+                                } else {
+                                    0.13f
+                                }
                         )
                     ),
             contentAlignment =
@@ -1772,7 +1973,11 @@ private fun GlassDownloadChoice(
                 contentDescription =
                     null,
                 tint =
-                    GlassGreen
+                    if (lightTheme) {
+                        Color(0xFF008A48)
+                    } else {
+                        GlassGreen
+                    }
             )
         }
 
@@ -1788,7 +1993,7 @@ private fun GlassDownloadChoice(
                 text =
                     title,
                 color =
-                    Color.White,
+                    homePrimaryText(),
                 fontWeight =
                     FontWeight.Black
             )
@@ -1797,8 +2002,8 @@ private fun GlassDownloadChoice(
                 text =
                     subtitle,
                 color =
-                    Color.White.copy(
-                        alpha = 0.47f
+                    homeSecondaryText(
+                        darkAlpha = 0.47f
                     ),
                 style =
                     MaterialTheme
@@ -1813,7 +2018,11 @@ private fun GlassDownloadChoice(
             contentDescription =
                 downloadDescription,
             tint =
-                GlassGreen
+                if (lightTheme) {
+                    Color(0xFF008A48)
+                } else {
+                    GlassGreen
+                }
         )
     }
 }
@@ -1825,7 +2034,8 @@ private fun GlassErrorCard(
     SyDownGlassCard(
         modifier =
             Modifier.fillMaxWidth(),
-        radius = 18.dp
+        radius =
+            18.dp
     ) {
         Text(
             modifier =
@@ -1833,7 +2043,11 @@ private fun GlassErrorCard(
             text =
                 message,
             color =
-                Color(0xFFFF6B76),
+                if (isHomeLightTheme()) {
+                    Color(0xFFB00020)
+                } else {
+                    Color(0xFFFF6B76)
+                },
             fontWeight =
                 FontWeight.SemiBold
         )
