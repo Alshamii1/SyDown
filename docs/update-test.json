@@ -2,7 +2,7 @@
     "versionCode":  3,
     "versionName":  "1.0.2",
     "apkUrl":  "https://github.com/Alshamii1/SyDown/releases/download/update-test-v3/SyDown-update-test-v3.apk",
-    "apkSha256":  "D8D40CB803BC03D9AAEB1432CEAA981A1C1EBAC4EC8D002F4B96A898F99849A5",
+    "apkSha256":  "D8D40CB803BC03D9AAEB1432CEAA981A1C1EBAC4EC8DD02F4B96A898F99849A5",
     "releaseNotesAr":  "اختبار تحديث SyDown من الإصدار 1.0.1 إلى 1.0.2",
     "releaseNotesEn":  "Test update from SyDown 1.0.1 to 1.0.2"
 }
