@@ -14,8 +14,9 @@ android {
         applicationId = "com.sydown.app"
         minSdk = 27
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0.0"
+
+        versionCode = 4
+        versionName = "1.0.3"
 
         testInstrumentationRunner =
             "androidx.test.runner.AndroidJUnitRunner"
@@ -88,6 +89,7 @@ android {
 }
 
 dependencies {
+    implementation("org.bouncycastle:bcprov-jdk18on:1.83")
 
     /*
      * =====================================================

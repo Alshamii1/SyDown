@@ -29,3 +29,14 @@ key.properties
 # Operating system files
 .DS_Store
 Thumbs.db
+# Local backups and diagnostic logs
+*.backup
+*.backup-*
+*.bak
+*-backup
+*-backup-*
+*.log
+itel-*.txt
+
+# Generated signed APK output
+/app/public/

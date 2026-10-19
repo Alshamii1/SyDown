@@ -42,6 +42,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -96,6 +99,12 @@ fun SyDownApp(
         remember {
             HomeUiState()
         }
+
+    DisposableEffect(homeUiState) {
+        onDispose {
+            homeUiState.dispose()
+        }
+    }
 
     var availableUpdate by remember {
         mutableStateOf<AppUpdateInfo?>(null)
@@ -161,9 +170,9 @@ fun SyDownApp(
      * عند الرجوع من شاشة "تثبيت تطبيقات غير معروفة"
      * نحاول فتح المثبت إذا أصبحت الصلاحية متاحة.
      */
-    DisposableEffect(context) {
-        val lifecycleOwner =
-            context as? androidx.lifecycle.LifecycleOwner
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner, context) {
 
         val observer =
             androidx.lifecycle.LifecycleEventObserver {
@@ -192,7 +201,8 @@ fun SyDownApp(
                         try {
                             AppUpdateInstaller.installApk(
                                 context = context,
-                                apkFile = apk
+                                apkFile = apk,
+                                expectedSha256 = requireNotNull(availableUpdate).apkSha256
                             )
                         } catch (
                             ignored: Throwable
@@ -328,10 +338,13 @@ fun SyDownApp(
                                 .downloadApk(
                                     context = context,
                                     apkUrl =
-                                        updateInfo.apkUrl
+                                        updateInfo.apkUrl,
+                                    expectedSha256 =
+                                        updateInfo.apkSha256
                                 ) { progress ->
-                                    updateProgress =
-                                        progress.percent
+                                    scope.launch {
+                                        updateProgress = progress.percent
+                                    }
                                 }
 
                         downloadedApk =
@@ -352,7 +365,8 @@ fun SyDownApp(
                             AppUpdateInstaller
                                 .installApk(
                                     context = context,
-                                    apkFile = apkFile
+                                    apkFile = apkFile,
+                                    expectedSha256 = updateInfo.apkSha256
                                 )
                         } else {
                             updateStage =
@@ -364,8 +378,13 @@ fun SyDownApp(
                                 )
                         }
                     } catch (
-                        ignored: Throwable
+                        error: Throwable
                     ) {
+                        android.util.Log.e(
+                            "SYDOWN_UPDATE",
+                            "Update download or installation failed",
+                            error
+                        )
                         updateStage =
                             AppUpdateUiStage.ERROR
                     }
@@ -399,7 +418,8 @@ fun SyDownApp(
                             AppUpdateInstaller
                                 .installApk(
                                     context = context,
-                                    apkFile = apk
+                                    apkFile = apk,
+                                    expectedSha256 = updateInfo.apkSha256
                                 )
                         } else {
                             updateStage =

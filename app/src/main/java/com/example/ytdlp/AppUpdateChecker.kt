@@ -5,22 +5,28 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Locale
 
 data class AppUpdateInfo(
     val versionCode: Int,
     val versionName: String,
     val apkUrl: String,
     val releaseNotesAr: String,
-    val releaseNotesEn: String
+    val releaseNotesEn: String,
+    val apkSha256: String = ""
 ) {
     val hasDownloadUrl: Boolean
-        get() = apkUrl.isNotBlank()
+        get() = apkUrl.isNotBlank() &&
+                apkSha256.isNotBlank()
 }
 
 object AppUpdateChecker {
 
     private const val UPDATE_MANIFEST_URL =
         "https://alshamii1.github.io/SyDown/update.json"
+
+    private val SHA256_PATTERN =
+        Regex("^[a-fA-F0-9]{64}$")
 
     suspend fun check(): AppUpdateInfo =
         withContext(Dispatchers.IO) {
@@ -33,6 +39,7 @@ object AppUpdateChecker {
                 connection.connectTimeout = 10_000
                 connection.readTimeout = 10_000
                 connection.useCaches = false
+
                 connection.setRequestProperty(
                     "Accept",
                     "application/json"
@@ -41,12 +48,10 @@ object AppUpdateChecker {
                 val responseCode =
                     connection.responseCode
 
-                if (
-                    responseCode !in 200..299
+                require(
+                    responseCode == HttpURLConnection.HTTP_OK
                 ) {
-                    throw IllegalStateException(
-                        "Update check failed: HTTP $responseCode"
-                    )
+                    "Update check failed: HTTP $responseCode"
                 }
 
                 val jsonText =
@@ -88,6 +93,11 @@ object AppUpdateChecker {
             json.optString("apkUrl")
                 .trim()
 
+        val apkSha256 =
+            json.optString("apkSha256")
+                .trim()
+                .lowercase(Locale.ROOT)
+
         val releaseNotesAr =
             json.optString("releaseNotesAr")
                 .trim()
@@ -105,10 +115,29 @@ object AppUpdateChecker {
         }
 
         if (apkUrl.isNotBlank()) {
+            val url = URL(apkUrl)
+
             require(
-                apkUrl.startsWith("https://")
+                url.protocol.equals(
+                    "https",
+                    ignoreCase = true
+                ) &&
+                        url.host.isNotBlank() &&
+                        url.userInfo == null
             ) {
                 "Invalid apkUrl"
+            }
+
+            require(
+                SHA256_PATTERN.matches(apkSha256)
+            ) {
+                "Missing or invalid APK SHA-256"
+            }
+        } else {
+            require(
+                apkSha256.isBlank()
+            ) {
+                "APK SHA-256 must be empty when apkUrl is empty"
             }
         }
 
@@ -117,7 +146,8 @@ object AppUpdateChecker {
             versionName = versionName,
             apkUrl = apkUrl,
             releaseNotesAr = releaseNotesAr,
-            releaseNotesEn = releaseNotesEn
+            releaseNotesEn = releaseNotesEn,
+            apkSha256 = apkSha256
         )
     }
 }

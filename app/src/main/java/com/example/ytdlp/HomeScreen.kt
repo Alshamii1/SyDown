@@ -277,32 +277,7 @@ fun HomeScreen(
         DownloadServiceState
             .clearFinishedState()
 
-        uiState.analyzing =
-            true
-
-        try {
-            uiState.videoInfo =
-                YtDlpManager
-                    .getVideoInfo(
-                        incomingUrl
-                    )
-        } catch (error: Throwable) {
-            Log.e(
-                "SYDOWN",
-                "Shared URL analysis failed",
-                error
-            )
-
-            uiState.errorMessage =
-                SyDownFriendlyErrors
-                    .message(
-                        context,
-                        error
-                    )
-        } finally {
-            uiState.analyzing =
-                false
-        }
+        uiState.startAnalysis(context)
     }
 
     Column(
@@ -359,45 +334,11 @@ fun HomeScreen(
                 initialized &&
                         !backgroundState.isRunning,
             onAnalyze = {
-                uiState.analyzing =
-                    true
-
-                uiState.videoInfo =
-                    null
-
-                uiState.errorMessage =
-                    null
-
                 if (!backgroundState.isRunning) {
-                    DownloadServiceState
-                        .clearFinishedState()
+                    DownloadServiceState.clearFinishedState()
                 }
 
-                scope.launch {
-                    try {
-                        uiState.videoInfo =
-                            YtDlpManager
-                                .getVideoInfo(
-                                    uiState.url.trim()
-                                )
-                    } catch (error: Throwable) {
-                        Log.e(
-                            "SYDOWN",
-                            "Analysis failed",
-                            error
-                        )
-
-                        uiState.errorMessage =
-                            SyDownFriendlyErrors
-                                .message(
-                                    context,
-                                    error
-                                )
-                    } finally {
-                        uiState.analyzing =
-                            false
-                    }
-                }
+                uiState.startAnalysis(context)
             }
         )
 
@@ -836,10 +777,7 @@ private fun GlassLinkCard(
                                 }
                         )
             ) {
-                if (
-                    initializing ||
-                    analyzing
-                ) {
+                if (analyzing) {
                     CircularProgressIndicator(
                         modifier =
                             Modifier.size(

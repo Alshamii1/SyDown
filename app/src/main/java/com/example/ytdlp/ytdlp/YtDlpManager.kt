@@ -30,6 +30,8 @@ object YtDlpManager {
                 val appContext =
                     context.applicationContext
 
+                BundledYtDlpManager.prepare(appContext)
+
                 YoutubeDL
                     .getInstance()
                     .init(appContext)
@@ -150,11 +152,13 @@ object YtDlpManager {
                 "--no-playlist"
             )
 
-            YoutubeDL
-                .getInstance()
-                .execute(request)
-                .out
-                .trim()
+            AnalysisRequestManager.analyze(url.trim()) {
+                YoutubeDL
+                    .getInstance()
+                    .execute(request)
+                    .out
+                    .trim()
+            }
         }
     }
 
