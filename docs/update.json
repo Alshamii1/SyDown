@@ -1,7 +1,8 @@
 {
-  "versionCode": 1,
-  "versionName": "1.0.0",
-  "apkUrl": "",
-  "releaseNotesAr": "الإصدار الأول من SyDown",
-  "releaseNotesEn": "First release of SyDown"
+    "versionCode":  4,
+    "versionName":  "1.0.3",
+    "apkUrl":  "https://github.com/Alshamii1/SyDown/releases/download/v1.0.3/SyDown-v1.0.3-official.apk",
+    "sha256":  "da9932131a67dbba422fe73407a5f98dc299e04c2decbcdc334e36398b59e15d",
+    "releaseNotesAr":  "الإصدار الرسمي الأول من SyDown. تحميل الفيديو والصوت، اختيار الجودة، واجهة عربية وإنجليزية، وتحديثات آمنة.",
+    "releaseNotesEn":  "First official SyDown release. Video and audio downloads, quality selection, Arabic and English support, and secure updates."
 }
